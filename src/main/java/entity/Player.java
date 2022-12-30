@@ -71,7 +71,8 @@ public class Player extends Entity {
 			if (spriteCounter > 12) {
 				if (spriteNum == 1) {
 					spriteNum = 2;
-				} else if ( spriteNum == 2) {
+				// } else if ( spriteNum == 2) {
+				} else {
 					spriteNum = 1;
 				}
 				spriteCounter = 0;
@@ -88,36 +89,35 @@ public class Player extends Entity {
 		
 		BufferedImage image = null;
 		
-		switch(direction ) {
+		switch(direction) {
 			case "up":
 				if (spriteNum == 1) {
 					image = up1;
-				}
-				if (spriteNum == 2) {
+				} else {
 					image = up2;
 				}
 				break;
+				
 			case "down":
 				if (spriteNum == 1) {
 					image = down1;
-				}
-				if (spriteNum == 2) {
+				} else {
 					image = down2;
 				}
 				break;
+				
 			case "left":
 				if (spriteNum == 1) {
 					image = left1;
-				}
-				if (spriteNum == 2) {
+				} else {
 					image = left2;
 				}
 				break;
+				
 			case "right":
 				if (spriteNum == 1) {
 					image = right1;
-				}
-				if (spriteNum == 2) {
+				} else {
 					image = right2;
 				}
 				break;

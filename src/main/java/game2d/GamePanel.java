@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 import entity.Player;
+import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -23,6 +24,8 @@ public class GamePanel extends JPanel implements Runnable {
 	final int screenHeight = tileSize * maxScreenRow; // 576
 	
 	final int fPS = 60;
+	
+	TileManager tileMgr = new TileManager(this);
 	
 	KeyHandler keyHandler = new KeyHandler();
 	Thread gameThread;
@@ -81,11 +84,20 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
+		tileMgr.draw(g2);
 		player.draw(g2);
 		g2.dispose();
 	}
 	
 	public int getTileSize() {
 		return tileSize;
+	}
+	
+	public int getMaxScreenColumn() {
+		return maxScreenCol;
+	}
+	
+	public int getMaxScreenRow() {
+		return maxScreenRow;
 	}
 }
