@@ -42,7 +42,7 @@ public class GameUserInterface {
 			
 			// Time
 			playTime += (double) 1/60;
-			g2.drawString("Time: " + dFormat.format(playTime), tileSize + 11, 65);
+			g2.drawString("Time: " + dFormat.format(playTime), tileSize * 11, 65);
 			
 			if (messageOn) {
 				g2.setFont(g2.getFont().deriveFont(30F));

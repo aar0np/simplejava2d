@@ -13,14 +13,33 @@
   
   	<build>
     	<plugins>
-        	<plugin>
-	            <groupId>org.codehaus.mojo</groupId>
-	            <artifactId>exec-maven-plugin</artifactId>
-	            <version>3.0.0</version>
-	            <configuration>
-	                <mainClass>game2d.Main</mainClass>
-	            </configuration>
-	        </plugin>
+			<plugin>
+			    <artifactId>maven-assembly-plugin</artifactId>
+			    <executions>
+			      <execution>
+			        <phase>package</phase>
+			        <goals>
+			          <goal>single</goal>
+			        </goals>
+			      </execution>
+			    </executions>
+			    <configuration>
+			      <archive>
+			        <manifest>
+			          <addClasspath>true</addClasspath>
+			          <mainClass>game2d.Main</mainClass>
+			        </manifest>
+			      </archive>
+			      <descriptorRefs>
+			         <descriptorRef>jar-with-dependencies</descriptorRef>
+			      </descriptorRefs>
+			    </configuration>
+			</plugin> 
     	</plugins>
+    	<resources>
+		    <resource>
+		        <directory>res</directory>
+		    </resource>
+    	</resources>
     </build>
 </project>
