@@ -1,10 +1,11 @@
 package entity;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 public class Entity {
-	protected int x;
-	protected int y;
+	protected int worldX;
+	protected int worldY;
 	protected int speed;
 	
 	protected BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
@@ -12,4 +13,46 @@ public class Entity {
 	
 	protected int spriteCounter = 0;
 	protected int spriteNum = 1;
+	
+	protected Rectangle solidArea;
+	protected boolean collisionOn = false;
+	
+	protected int solidAreaDefaultX;
+	protected int solidAreaDefaultY;
+	
+	public int getWorldX() {
+		return worldX;
+	}
+
+	public int getWorldY() {
+		return worldY;
+	}
+	
+	public int getSpeed() {
+		return speed;
+	}
+
+	public Rectangle getSolidArea() {
+		return solidArea;
+	}
+
+	public int getSolidAreaDefaultX() {
+		return solidAreaDefaultX;
+	}
+	
+	public int getSolidAreaDefaultY() {
+		return solidAreaDefaultY;
+	}
+	
+	public boolean isCollisionOn() {
+		return collisionOn;
+	}
+
+	public void setCollisionOn(boolean collisionOn) {
+		this.collisionOn = collisionOn;
+	}
+	
+	public String getDirection() {
+		return direction;
+	}
 }

@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 import entity.Player;
+import object.SuperObject;
+import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 
@@ -15,18 +17,32 @@ public class GamePanel extends JPanel implements Runnable {
 
 	final int originalTileSize = 16;
 	final int scale = 3;
-	
-	final int tileSize = originalTileSize * scale;  // 48x48 by default
+
+	// screen settings
+	private final int tileSize = originalTileSize * scale;  // 48x48 by default
 	final int maxScreenCol = 16;
 	final int maxScreenRow = 12;
 	final int screenWidth = tileSize * maxScreenCol; // 768x
 	final int screenHeight = tileSize * maxScreenRow; // 576
 	
+	// world map settings
+	final int maxWorldCol = 50;
+	final int maxWorldRow = 50;
+	final int worldWidth = tileSize * maxWorldCol;
+	final int worldHeight = tileSize * maxWorldRow;
+	
+	// frames per second
 	final int fPS = 60;
+	
+	private TileManager tileMgr = new TileManager(this);
 	
 	KeyHandler keyHandler = new KeyHandler();
 	Thread gameThread;
+	
+	CollisionChecker cChecker = new CollisionChecker(this);
+	ObjectFactory oFactory = new ObjectFactory(this);
 	Player player = new Player(this,keyHandler);
+	SuperObject objects[] = new SuperObject[10];
 	
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -36,6 +52,10 @@ public class GamePanel extends JPanel implements Runnable {
 		this.setFocusable(true);
 	}
 
+	public void setupGame() {
+		oFactory.generateObjects();
+	}
+	
 	public void startGameThread() {
 		gameThread = new Thread(this);
 		gameThread.start();
@@ -49,8 +69,6 @@ public class GamePanel extends JPanel implements Runnable {
 		while (gameThread != null) {
 			// testing
 			// System.out.println("Game loop is running");
-			
-			long currentTime = System.nanoTime();
 			
 			update();
 			
@@ -81,11 +99,63 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
+		// tiles
+		tileMgr.draw(g2);
+		
+		// objects
+		for(SuperObject obj : objects) {
+			if (obj != null) {
+				obj.draw(g2, this);
+			}
+		}
+		
+		// player
 		player.draw(g2);
+
 		g2.dispose();
+	}
+	
+	public Player getPlayer() {
+		return player;
+	}
+	
+	public CollisionChecker getCollisionChecker() {
+		return cChecker;
+	}
+	
+	public TileManager getTileManager() {
+		return tileMgr;
+	}
+	
+	public SuperObject[] getObjects() {
+		return this.objects;
 	}
 	
 	public int getTileSize() {
 		return tileSize;
+	}
+	
+	public int getMaxScreenColumn() {
+		return maxScreenCol;
+	}
+	
+	public int getMaxScreenRow() {
+		return maxScreenRow;
+	}
+	
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+	
+	public int getScreenHeight() {
+		return screenHeight;
+	}
+	
+	public int getMaxWorldColumn() {
+		return maxWorldCol;
+	}
+	
+	public int getMaxWorldRow() {
+		return maxWorldRow;
 	}
 }
