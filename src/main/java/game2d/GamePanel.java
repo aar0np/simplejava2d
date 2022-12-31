@@ -28,19 +28,21 @@ public class GamePanel extends JPanel implements Runnable {
 	// world map settings
 	final int maxWorldCol = 50;
 	final int maxWorldRow = 50;
-	final int worldWidth = tileSize * maxWorldCol;
-	final int worldHeight = tileSize * maxWorldRow;
 	
 	// frames per second
 	final int fPS = 60;
 	
+	// Game engine
 	private TileManager tileMgr = new TileManager(this);
-	
+	private Thread gameThread;
 	KeyHandler keyHandler = new KeyHandler();
-	Thread gameThread;
-	
+	Sound sound = new Sound(false);
+	Sound music = new Sound(true);
 	CollisionChecker cChecker = new CollisionChecker(this);
 	ObjectFactory oFactory = new ObjectFactory(this);
+	GameUserInterface gameUI = new GameUserInterface(this);
+	
+	// Entities and objects
 	Player player = new Player(this,keyHandler);
 	SuperObject objects[] = new SuperObject[10];
 	
@@ -54,11 +56,16 @@ public class GamePanel extends JPanel implements Runnable {
 
 	public void setupGame() {
 		oFactory.generateObjects();
+		playMusic(0);
 	}
 	
 	public void startGameThread() {
 		gameThread = new Thread(this);
 		gameThread.start();
+	}
+	
+	public void stopGame() {
+		gameThread = null;
 	}
 	
 	public void run() {
@@ -112,7 +119,25 @@ public class GamePanel extends JPanel implements Runnable {
 		// player
 		player.draw(g2);
 
+		// UI
+		gameUI.draw(g2);
+		
 		g2.dispose();
+	}
+	
+	private void playMusic(int index) {
+		music.setFile(index);
+		music.play();
+		music.loop();
+	}
+	
+	public void stopMusic() {
+		music.stop();
+	}
+	
+	public void playSoundEffect(int index) {
+		sound.setFile(index);
+		sound.play();
 	}
 	
 	public Player getPlayer() {
@@ -129,6 +154,10 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public SuperObject[] getObjects() {
 		return this.objects;
+	}
+	
+	public GameUserInterface getGameUI() {
+		return this.gameUI;
 	}
 	
 	public int getTileSize() {

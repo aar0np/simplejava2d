@@ -31,19 +31,19 @@ public class TileManager {
 	private void getTileImage() {
 		
 		try {
-			// water
-			tiles[2] = new Tile();
-			tiles[2].setImage(ImageIO.read(getClass().getResourceAsStream("/tiles/018.png")));
-			tiles[2].setCollision(true);
+			// grass
+			tiles[0] = new Tile();
+			tiles[0].setImage(ImageIO.read(getClass().getResourceAsStream("/tiles/001.png")));
 
 			// wall
 			tiles[1] = new Tile();
 			tiles[1].setImage(ImageIO.read(getClass().getResourceAsStream("/tiles/032.png")));
 			tiles[1].setCollision(true);
 
-			// grass
-			tiles[0] = new Tile();
-			tiles[0].setImage(ImageIO.read(getClass().getResourceAsStream("/tiles/001.png")));
+			// water
+			tiles[2] = new Tile();
+			tiles[2].setImage(ImageIO.read(getClass().getResourceAsStream("/tiles/018.png")));
+			tiles[2].setCollision(true);
 
 			// earth
 			tiles[3] = new Tile();

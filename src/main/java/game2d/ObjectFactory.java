@@ -1,5 +1,6 @@
 package game2d;
 
+import object.Boots;
 import object.Chest;
 import object.Door;
 import object.Key;
@@ -45,6 +46,11 @@ public class ObjectFactory {
 		// chests
 		gp.getObjects()[6] = new Chest();
 		gp.getObjects()[6].setWorldX(10 * tileSize);
-		gp.getObjects()[6].setWorldY(7 * tileSize);		
+		gp.getObjects()[6].setWorldY(7 * tileSize);
+		
+		// boots
+		gp.getObjects()[7] = new Boots();
+		gp.getObjects()[7].setWorldX(37 * tileSize);
+		gp.getObjects()[7].setWorldY(42 * tileSize);
 	}
 }

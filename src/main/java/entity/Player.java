@@ -139,16 +139,33 @@ public class Player extends Entity {
 			switch (objName) {
 				case "Key":
 					hasKey++;
+					gp.playSoundEffect(1);
 					gp.getObjects()[index] = null;
+					gp.getGameUI().showMessage("Key found!");
 					break;
 				case "Door":
 					if (hasKey > 0) {
+						gp.playSoundEffect(3);
 						gp.getObjects()[index] = null;
+						gp.getGameUI().showMessage("Door opened!");
 						hasKey--;
+					} else {
+						gp.getGameUI().showMessage("Door requires a key!");
+						// gp.playSoundEffect(5);
 					}
 					break;
+				case "Boots":
+					speed += 2;
+					gp.playSoundEffect(2);
+					gp.getObjects()[index] = null;
+					gp.getGameUI().showMessage("Boots of speed acquired!");
+					break;
+				case "Chest":
+					gp.getGameUI().setIsGameFinished(true);
+					gp.stopMusic();
+					gp.playSoundEffect(4);
+					break;
 			}
-			
 		}
 	}
 	
@@ -207,4 +224,7 @@ public class Player extends Entity {
 		return screenY;
 	}
 	
+	public int getKeys() {
+		return hasKey;
+	}
 }

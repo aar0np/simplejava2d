@@ -11,6 +11,7 @@ public class SuperObject {
 	protected BufferedImage image;
 	protected String name;
 	protected boolean collision = false;
+	
 	protected int worldX;
 	protected int worldY;
 	protected Rectangle solidArea = new Rectangle(0, 0, 48, 48);
@@ -73,5 +74,9 @@ public class SuperObject {
 
 	public int getSolidAreaDefaultY() {
 		return this.solidAreaDefaultY;
+	}
+	
+	public BufferedImage getImage() {
+		return this.image;
 	}
 }
