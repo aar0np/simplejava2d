@@ -1,6 +1,7 @@
 package game2d;
 
 import entity.Entity;
+import object.SuperObject;
 
 public class CollisionChecker {
 
@@ -73,6 +74,80 @@ public class CollisionChecker {
 					entity.setCollisionOn(true);
 				}
 				break;
+		}
+	}
+	
+	public int checkObject(Entity entity, boolean isPlayer) {
+		
+		int index = 999;
+		
+		//for (SuperObject object : gp.getObjects()) {
+		for (int counter = 0; counter < gp.getObjects().length; counter++) {
+			SuperObject object = gp.getObjects()[counter];
+		
+			if (object != null) {
+				// get entity's solid area position
+				entity.getSolidArea().x = entity.getWorldX() + entity.getSolidArea().x;
+				entity.getSolidArea().y = entity.getWorldY() + entity.getSolidArea().y;
+				
+				// get object's solid area position
+				object.getSolidArea().x = object.getWorldX() + object.getSolidArea().x;
+				object.getSolidArea().y = object.getWorldY() + object.getSolidArea().y;
+				
+				switch (entity.getDirection()) {
+					case "up":
+						entity.getSolidArea().y -= entity.getSpeed();
+						if (entity.getSolidArea().intersects(object.getSolidArea())) {
+							if (object.isCollision()) {
+								entity.setCollisionOn(true);
+							}
+							if (isPlayer) {
+								index = counter;
+							}
+						}
+						break;
+					case "down":
+						entity.getSolidArea().y += entity.getSpeed();
+						if (entity.getSolidArea().intersects(object.getSolidArea())) {
+							if (object.isCollision()) {
+								entity.setCollisionOn(true);
+							}
+							if (isPlayer) {
+								index = counter;
+							}
+						}
+						break;
+					case "left":
+						entity.getSolidArea().x -= entity.getSpeed();
+						if (entity.getSolidArea().intersects(object.getSolidArea())) {
+							if (object.isCollision()) {
+								entity.setCollisionOn(true);
+							}
+							if (isPlayer) {
+								index = counter;
+							}
+						}
+						break;
+					case "right":
+						entity.getSolidArea().x += entity.getSpeed();
+						if (entity.getSolidArea().intersects(object.getSolidArea())) {
+							if (object.isCollision()) {
+								entity.setCollisionOn(true);
+							}
+							if (isPlayer) {
+								index = counter;
+							}
+						}
+						break;
+				}
+				// reset numbers back to defaults
+				entity.getSolidArea().x = entity.getSolidAreaDefaultX();
+				entity.getSolidArea().y = entity.getSolidAreaDefaultY();
+				object.getSolidArea().x = object.getSolidAreaDefaultX();
+				object.getSolidArea().y = object.getSolidAreaDefaultY();
 			}
+		}
+		
+		return index;
 	}
 }

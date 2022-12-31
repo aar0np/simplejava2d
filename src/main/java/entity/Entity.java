@@ -17,6 +17,9 @@ public class Entity {
 	protected Rectangle solidArea;
 	protected boolean collisionOn = false;
 	
+	protected int solidAreaDefaultX;
+	protected int solidAreaDefaultY;
+	
 	public int getWorldX() {
 		return worldX;
 	}
@@ -33,6 +36,14 @@ public class Entity {
 		return solidArea;
 	}
 
+	public int getSolidAreaDefaultX() {
+		return solidAreaDefaultX;
+	}
+	
+	public int getSolidAreaDefaultY() {
+		return solidAreaDefaultY;
+	}
+	
 	public boolean isCollisionOn() {
 		return collisionOn;
 	}

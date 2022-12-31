@@ -16,17 +16,21 @@ public class Player extends Entity {
 	
 	final int screenX;
 	final int screenY;
+	int hasKey = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		this.gp = gp;
 		this.keyHandler = keyH;
 		
 		// setting the middle of the screen
-		screenX = (gp.getScreenWidth() / 2) - (gp.getTileSize());
-		screenY = (gp.getScreenHeight() / 2) - (gp.getTileSize());
+		screenX = (gp.getScreenWidth() / 2) - (gp.getTileSize() / 2);
+		screenY = (gp.getScreenHeight() / 2) - (gp.getTileSize() / 2);
 		
 		// solid pixel area of player starts at 8,16 and is a 32x32 square
 		solidArea = new Rectangle(8, 16, 32, 32);
+		
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;
 		
 		setDefaultValues();
 		getPlayerImage();
@@ -68,9 +72,13 @@ public class Player extends Entity {
 				direction = "down";
 			}
 
-			// check collision
+			// check tile collision
 			collisionOn = false;
 			gp.getCollisionChecker().checkTile(this);
+
+			// check object collision
+			int objectIndex = gp.getCollisionChecker().checkObject(this, true);
+			pickUpObject(objectIndex);
 
 			if (!collisionOn) {
 				switch (direction) {
@@ -90,9 +98,13 @@ public class Player extends Entity {
 				direction = "right";
 			}
 
-			// check collision again
+			// check tile collision again
 			collisionOn = false;
 			gp.getCollisionChecker().checkTile(this);
+
+			// check object collision again
+			objectIndex = gp.getCollisionChecker().checkObject(this, true);
+			pickUpObject(objectIndex);
 
 			if (!collisionOn) {
 				switch (direction) {
@@ -105,6 +117,7 @@ public class Player extends Entity {
 				}
 			}
 			
+			// how to influence the walking animation
 			spriteCounter++;
 			if (spriteCounter > 12) {
 				if (spriteNum == 1) {
@@ -117,6 +130,28 @@ public class Player extends Entity {
 			}
 		}
 	}
+	
+	public void pickUpObject(int index) {
+		
+		if (index != 999) {
+			String objName = gp.getObjects()[index].getName();
+			
+			switch (objName) {
+				case "Key":
+					hasKey++;
+					gp.getObjects()[index] = null;
+					break;
+				case "Door":
+					if (hasKey > 0) {
+						gp.getObjects()[index] = null;
+						hasKey--;
+					}
+					break;
+			}
+			
+		}
+	}
+	
 	public void draw(Graphics2D g2) {
 
 		int tileSize = gp.getTileSize();
