@@ -16,19 +16,29 @@ public class GamePanel extends JPanel implements Runnable {
 
 	final int originalTileSize = 16;
 	final int scale = 3;
-	
-	final int tileSize = originalTileSize * scale;  // 48x48 by default
+
+	// screen settings
+	private final int tileSize = originalTileSize * scale;  // 48x48 by default
 	final int maxScreenCol = 16;
 	final int maxScreenRow = 12;
 	final int screenWidth = tileSize * maxScreenCol; // 768x
 	final int screenHeight = tileSize * maxScreenRow; // 576
 	
+	// world map settings
+	final int maxWorldCol = 50;
+	final int maxWorldRow = 50;
+	final int worldWidth = tileSize * maxWorldCol;
+	final int worldHeight = tileSize * maxWorldRow;
+	
+	// frames per second
 	final int fPS = 60;
 	
-	TileManager tileMgr = new TileManager(this);
+	private TileManager tileMgr = new TileManager(this);
 	
 	KeyHandler keyHandler = new KeyHandler();
 	Thread gameThread;
+	
+	CollisionChecker cChecker = new CollisionChecker(this);
 	Player player = new Player(this,keyHandler);
 	
 	public GamePanel() {
@@ -52,8 +62,6 @@ public class GamePanel extends JPanel implements Runnable {
 		while (gameThread != null) {
 			// testing
 			// System.out.println("Game loop is running");
-			
-			long currentTime = System.nanoTime();
 			
 			update();
 			
@@ -89,6 +97,18 @@ public class GamePanel extends JPanel implements Runnable {
 		g2.dispose();
 	}
 	
+	public Player getPlayer() {
+		return player;
+	}
+	
+	public CollisionChecker getCollisionChecker() {
+		return cChecker;
+	}
+	
+	public TileManager getTileManager() {
+		return tileMgr;
+	}
+	
 	public int getTileSize() {
 		return tileSize;
 	}
@@ -99,5 +119,21 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public int getMaxScreenRow() {
 		return maxScreenRow;
+	}
+	
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+	
+	public int getScreenHeight() {
+		return screenHeight;
+	}
+	
+	public int getMaxWorldColumn() {
+		return maxWorldCol;
+	}
+	
+	public int getMaxWorldRow() {
+		return maxWorldRow;
 	}
 }
