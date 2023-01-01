@@ -8,23 +8,28 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import game2d.GamePanel;
+import game2d.GraphicsTools;
 import game2d.KeyHandler;
 
 public class Player extends Entity {
+	private int tileSize;
+	
 	GamePanel gp;
 	KeyHandler keyHandler;
 	
 	final int screenX;
 	final int screenY;
-	int hasKey = 0;
+	// int hasKey = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		this.gp = gp;
 		this.keyHandler = keyH;
+
+		tileSize = gp.getTileSize();
 		
-		// setting the middle of the screen
-		screenX = (gp.getScreenWidth() / 2) - (gp.getTileSize() / 2);
-		screenY = (gp.getScreenHeight() / 2) - (gp.getTileSize() / 2);
+		// computing the middle of the screen
+		screenX = (gp.getScreenWidth() / 2) - (tileSize / 2);
+		screenY = (gp.getScreenHeight() / 2) - (tileSize / 2);
 		
 		// solid pixel area of player starts at 8,16 and is a 32x32 square
 		solidArea = new Rectangle(8, 16, 32, 32);
@@ -45,18 +50,28 @@ public class Player extends Entity {
 	
 	public void getPlayerImage() {
 		
+		up1 = setupPlayerImage("boy_up_1.png");
+		up2 = setupPlayerImage("boy_up_2.png");
+		down1 = setupPlayerImage("boy_down_1.png");
+		down2 = setupPlayerImage("boy_down_2.png");
+		right1 = setupPlayerImage("boy_right_1.png");
+		right2 = setupPlayerImage("boy_right_2.png");
+		left1 = setupPlayerImage("boy_left_1.png");
+		left2 = setupPlayerImage("boy_left_2.png");
+	}
+	
+	private BufferedImage setupPlayerImage(String imagePath) {
+		BufferedImage image = null;
+		
 		try {
-			up1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_up_1.png"));
-			up2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_up_2.png"));
-			down1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_down_1.png"));
-			down2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_down_2.png"));
-			right1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_right_1.png"));
-			right2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_right_2.png"));
-			left1 = ImageIO.read(getClass().getResourceAsStream("/player/boy_left_1.png"));
-			left2 = ImageIO.read(getClass().getResourceAsStream("/player/boy_left_2.png"));
+			image = ImageIO.read(getClass().getResourceAsStream("/player/" + imagePath));
+			// scale player tile
+			image = GraphicsTools.scaleTile(image, tileSize);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		
+		return image;
 	}
 	
 	public void update() {
@@ -131,48 +146,57 @@ public class Player extends Entity {
 		}
 	}
 	
+// RPG version of pickUpObject
+//
 	public void pickUpObject(int index) {
-		
 		if (index != 999) {
-			String objName = gp.getObjects()[index].getName();
 			
-			switch (objName) {
-				case "Key":
-					hasKey++;
-					gp.playSoundEffect(1);
-					gp.getObjects()[index] = null;
-					gp.getGameUI().showMessage("Key found!");
-					break;
-				case "Door":
-					if (hasKey > 0) {
-						gp.playSoundEffect(3);
-						gp.getObjects()[index] = null;
-						gp.getGameUI().showMessage("Door opened!");
-						hasKey--;
-					} else {
-						gp.getGameUI().showMessage("Door requires a key!");
-						// gp.playSoundEffect(5);
-					}
-					break;
-				case "Boots":
-					speed += 2;
-					gp.playSoundEffect(2);
-					gp.getObjects()[index] = null;
-					gp.getGameUI().showMessage("Boots of speed acquired!");
-					break;
-				case "Chest":
-					gp.getGameUI().setIsGameFinished(true);
-					gp.stopMusic();
-					gp.playSoundEffect(4);
-					break;
-			}
 		}
+		
 	}
+	
+// Treasure hunt version pickUpObject	
+//	
+//	public void pickUpObject(int index) {
+//		
+//		if (index != 999) {
+//			String objName = gp.getObjects()[index].getName();
+//			
+//			switch (objName) {
+//				case "Key":
+//					hasKey++;
+//					gp.playSoundEffect(1);
+//					gp.getObjects()[index] = null;
+//					gp.getGameUI().showMessage("Key found!");
+//					break;
+//				case "Door":
+//					if (hasKey > 0) {
+//						gp.playSoundEffect(3);
+//						gp.getObjects()[index] = null;
+//						gp.getGameUI().showMessage("Door opened!");
+//						hasKey--;
+//					} else {
+//						gp.getGameUI().showMessage("Door requires a key!");
+//						// gp.playSoundEffect(5);
+//					}
+//					break;
+//				case "Boots":
+//					speed += 2;
+//					gp.playSoundEffect(2);
+//					gp.getObjects()[index] = null;
+//					gp.getGameUI().showMessage("Boots of speed acquired!");
+//					break;
+//				case "Chest":
+//					gp.getGameUI().setIsGameFinished(true);
+//					gp.stopMusic();
+//					gp.playSoundEffect(4);
+//					break;
+//			}
+//		}
+//	}
 	
 	public void draw(Graphics2D g2) {
 
-		int tileSize = gp.getTileSize();
-		
 		// testing
 		//g2.setColor(Color.white);
 		//g2.fillRect(x, y, tileSize, tileSize);
@@ -213,7 +237,7 @@ public class Player extends Entity {
 				break;
 		}
 		
-		g2.drawImage(image, screenX, screenY, tileSize, tileSize, null);
+		g2.drawImage(image, screenX, screenY, null);
 	}
 	
 	public int getScreenX() {
@@ -224,7 +248,7 @@ public class Player extends Entity {
 		return screenY;
 	}
 	
-	public int getKeys() {
-		return hasKey;
-	}
+//	public int getKeys() {
+//		return hasKey;
+//	}
 }

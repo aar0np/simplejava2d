@@ -25,14 +25,12 @@ public class SuperObject {
 		int screenY = worldY - gp.getPlayer().getWorldY() + gp.getPlayer().getScreenY();
 		
 		// if check so that we only draw tiles which are visible.
-		// added the * 2 because we were still short on the right and bottom.
-		if (worldX + (tileSize * 2) > gp.getPlayer().getWorldX() - gp.getPlayer().getScreenX() &&
-			worldX - (tileSize * 2) < gp.getPlayer().getWorldX() + gp.getPlayer().getScreenX() &&
-			worldY + (tileSize * 2) > gp.getPlayer().getWorldY() - gp.getPlayer().getScreenY() &&
-			worldY - (tileSize * 2) < gp.getPlayer().getWorldY() + gp.getPlayer().getScreenY()) {
+		if (worldX + tileSize > gp.getPlayer().getWorldX() - gp.getPlayer().getScreenX() &&
+			worldX - tileSize < gp.getPlayer().getWorldX() + gp.getPlayer().getScreenX() &&
+			worldY + tileSize > gp.getPlayer().getWorldY() - gp.getPlayer().getScreenY() &&
+			worldY - tileSize < gp.getPlayer().getWorldY() + gp.getPlayer().getScreenY()) {
 
-			g2.drawImage(image, screenX, screenY,
-					tileSize, tileSize, null);
+			g2.drawImage(image, screenX, screenY, tileSize, tileSize, null);
 		}
 	}
 	

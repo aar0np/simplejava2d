@@ -9,6 +9,11 @@ public class KeyHandler implements KeyListener {
 	private boolean downPressed = false;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
+	private GamePanel gp;
+	
+	public KeyHandler(GamePanel gp) {
+		this.gp = gp;
+	}
 	
 	public void keyTyped(KeyEvent e) {
 		
@@ -30,7 +35,13 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_D) {
 			rightPressed = true;
 		}
-		
+		if (code == KeyEvent.VK_ESCAPE) {
+			if (gp.getGameState() == gp.playState) {
+				gp.setGameState(gp.pauseState);
+			} else if (gp.getGameState() == gp.pauseState) {
+				gp.setGameState(gp.playState);
+			}
+		}
 	}
 
 	public void keyReleased(KeyEvent e) {

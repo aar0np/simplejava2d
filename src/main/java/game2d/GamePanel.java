@@ -35,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
 	// Game engine
 	private TileManager tileMgr = new TileManager(this);
 	private Thread gameThread;
-	KeyHandler keyHandler = new KeyHandler();
+	KeyHandler keyHandler = new KeyHandler(this);
 	Sound sound = new Sound(false);
 	Sound music = new Sound(true);
 	CollisionChecker cChecker = new CollisionChecker(this);
@@ -45,6 +45,10 @@ public class GamePanel extends JPanel implements Runnable {
 	// Entities and objects
 	Player player = new Player(this,keyHandler);
 	SuperObject objects[] = new SuperObject[10];
+	
+	private int gameState;
+	final int playState = 1;
+	final int pauseState = 2;
 	
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -57,6 +61,8 @@ public class GamePanel extends JPanel implements Runnable {
 	public void setupGame() {
 		oFactory.generateObjects();
 		playMusic(0);
+		stopMusic();
+		gameState = playState;
 	}
 	
 	public void startGameThread() {
@@ -98,13 +104,20 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void update() {
-		player.update();
+		
+		if (gameState == playState) {
+			player.update();
+		} else if (gameState == pauseState) {
+			
+		}
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
 		Graphics2D g2 = (Graphics2D)g;
+		
+		//long drawStart = System.currentTimeMillis();
 		
 		// tiles
 		tileMgr.draw(g2);
@@ -121,6 +134,12 @@ public class GamePanel extends JPanel implements Runnable {
 
 		// UI
 		gameUI.draw(g2);
+		
+		//long drawEnd = System.currentTimeMillis();
+		//long drawTime = drawEnd - drawStart;
+		
+		//System.out.println("draw time = " + drawTime);
+		// getting 200-300ms initially
 		
 		g2.dispose();
 	}
@@ -186,5 +205,13 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public int getMaxWorldRow() {
 		return maxWorldRow;
+	}
+	
+	public int getGameState() {
+		return this.gameState;
+	}
+	
+	public void setGameState(int newState) {
+		this.gameState = newState;
 	}
 }
