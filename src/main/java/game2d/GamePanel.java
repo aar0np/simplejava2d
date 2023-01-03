@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
+import entity.Entity;
 import entity.Player;
 import object.SuperObject;
 import tile.TileManager;
@@ -45,10 +46,13 @@ public class GamePanel extends JPanel implements Runnable {
 	// Entities and objects
 	Player player = new Player(this,keyHandler);
 	SuperObject objects[] = new SuperObject[10];
+	Entity npcs[] = new Entity[10];
 	
 	private int gameState;
-	final int playState = 1;
-	final int pauseState = 2;
+	public final int TITLE_STATE = 0;
+	public final int PLAY_STATE = 1;
+	public final int PAUSE_STATE = 2;
+	public final int DIALOG_STATE = 3;
 	
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -60,9 +64,10 @@ public class GamePanel extends JPanel implements Runnable {
 
 	public void setupGame() {
 		oFactory.generateObjects();
-		playMusic(0);
-		stopMusic();
-		gameState = playState;
+		oFactory.generateNPCs();
+		//playMusic(0);
+		//stopMusic();
+		gameState = TITLE_STATE;
 	}
 	
 	public void startGameThread() {
@@ -105,9 +110,15 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void update() {
 		
-		if (gameState == playState) {
+		if (gameState == PLAY_STATE) {
 			player.update();
-		} else if (gameState == pauseState) {
+			
+			for (Entity npc : npcs) {
+				if (npc != null) {
+					npc.update();
+				}
+			}
+		} else if (gameState == PAUSE_STATE) {
 			
 		}
 	}
@@ -119,32 +130,48 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		//long drawStart = System.currentTimeMillis();
 		
-		// tiles
-		tileMgr.draw(g2);
-		
-		// objects
-		for(SuperObject obj : objects) {
-			if (obj != null) {
-				obj.draw(g2, this);
+		if (gameState == TITLE_STATE) {
+			// title screen 
+			gameUI.draw(g2);
+			
+		} else {	
+			// play state
+			
+			// tiles
+			tileMgr.draw(g2);
+			
+			// objects
+			for (SuperObject obj : objects) {
+				if (obj != null) {
+					obj.draw(g2, this);
+				}
 			}
-		}
-		
-		// player
-		player.draw(g2);
+			
+			// NPCs
+			for (Entity npc : npcs) {
+				if (npc != null) {
+					npc.draw(g2);
+				}
+			}
+			
+			// player
+			player.draw(g2);
 
-		// UI
-		gameUI.draw(g2);
-		
+			// UI
+			gameUI.draw(g2);
+			
+		}
+
 		//long drawEnd = System.currentTimeMillis();
 		//long drawTime = drawEnd - drawStart;
 		
 		//System.out.println("draw time = " + drawTime);
-		// getting 200-300ms initially
-		
+		// getting 200-300ms initially	
+
 		g2.dispose();
 	}
 	
-	private void playMusic(int index) {
+	public void playMusic(int index) {
 		music.setFile(index);
 		music.play();
 		music.loop();
@@ -160,19 +187,27 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 	
 	public CollisionChecker getCollisionChecker() {
-		return cChecker;
+		return this.cChecker;
 	}
 	
 	public TileManager getTileManager() {
-		return tileMgr;
+		return this.tileMgr;
+	}
+
+	public KeyHandler getKeyHandler() {
+		return this.keyHandler;
 	}
 	
 	public SuperObject[] getObjects() {
 		return this.objects;
+	}
+	
+	public Entity[] getNPCs() {
+		return this.npcs;
 	}
 	
 	public GameUserInterface getGameUI() {

@@ -1,9 +1,11 @@
 package game2d;
 
-import object.Boots;
-import object.Chest;
-import object.Door;
-import object.Key;
+import entity.OldMan;
+
+//import object.Boots;
+//import object.Chest;
+//import object.Door;
+//import object.Key;
 
 public class ObjectFactory {
 
@@ -19,6 +21,13 @@ public class ObjectFactory {
 	//
 	public void generateObjects() {
 	
+	}
+	
+	public void generateNPCs() {
+		
+		gp.npcs[0] = new OldMan(gp);
+		gp.npcs[0].setWorldX(tileSize * 21);
+		gp.npcs[0].setWorldY(tileSize * 21);		
 	}
 	
 // treasure hunting verison generateObjects

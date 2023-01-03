@@ -9,6 +9,7 @@ public class KeyHandler implements KeyListener {
 	private boolean downPressed = false;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
+	private boolean enterPressed = false;
 	private GamePanel gp;
 	
 	public KeyHandler(GamePanel gp) {
@@ -23,25 +24,60 @@ public class KeyHandler implements KeyListener {
 
 		int code = e.getKeyCode();
 		
-		if (code == KeyEvent.VK_W) {
-			upPressed = true;
-		}
-		if (code == KeyEvent.VK_A) {
-			leftPressed = true;
-		}
-		if (code == KeyEvent.VK_S) {
-			downPressed = true;
-		}
-		if (code == KeyEvent.VK_D) {
-			rightPressed = true;
-		}
-		if (code == KeyEvent.VK_ESCAPE) {
-			if (gp.getGameState() == gp.playState) {
-				gp.setGameState(gp.pauseState);
-			} else if (gp.getGameState() == gp.pauseState) {
-				gp.setGameState(gp.playState);
+		if (gp.getGameState() ==  gp.PLAY_STATE) {
+			// PLAY STATE
+			
+			if (code == KeyEvent.VK_W) {
+				upPressed = true;
+			}
+			if (code == KeyEvent.VK_A) {
+				leftPressed = true;
+			}
+			if (code == KeyEvent.VK_S) {
+				downPressed = true;
+			}
+			if (code == KeyEvent.VK_D) {
+				rightPressed = true;
+			}
+			if (code == KeyEvent.VK_ESCAPE) {
+				gp.setGameState(gp.PAUSE_STATE);
+			}
+			if (code == KeyEvent.VK_ENTER) {
+				enterPressed = true;
+			}
+		} else if (gp.getGameState() == gp.PAUSE_STATE) {
+			// PAUSE STATE
+			
+			if (code == KeyEvent.VK_ESCAPE) {
+				gp.setGameState(gp.PLAY_STATE);
+			}
+		} else if (gp.getGameState() == gp.DIALOG_STATE) {
+			// DIALOG STATE
+			if (code == KeyEvent.VK_ENTER) {
+				gp.setGameState(gp.PLAY_STATE);
+			}
+		} else if (gp.getGameState() == gp.TITLE_STATE) {
+			if (code == KeyEvent.VK_W) {
+				gp.getGameUI().decrementCommandNum();
+			} else if (code == KeyEvent.VK_S) {
+				gp.getGameUI().incrementCommandNum();
+			}
+			
+			if (code == KeyEvent.VK_ENTER) {
+				if (gp.getGameUI().getCommandNum() == 0) {
+					// new game
+					gp.setGameState(gp.PLAY_STATE);
+					gp.playMusic(0);
+				} else if (gp.getGameUI().getCommandNum() == 1) {
+					// load game
+					
+				} else {
+					// quit
+					System.exit(0);
+				}
 			}
 		}
+		
 	}
 
 	public void keyReleased(KeyEvent e) {
@@ -93,4 +129,13 @@ public class KeyHandler implements KeyListener {
 	public void setRightPressed(boolean rightPressed) {
 		this.rightPressed = rightPressed;
 	}
+	
+	public boolean isEnterPressed() {
+		return this.enterPressed;
+	}
+	
+	public void setEnterPressed(boolean enterPressed) {
+		this.enterPressed = enterPressed;
+	}
+	
 }

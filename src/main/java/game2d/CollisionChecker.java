@@ -150,4 +150,104 @@ public class CollisionChecker {
 		
 		return index;
 	}
+	
+	public int checkEntity(Entity entity, Entity[] target) {
+		
+		int index = 999;
+		
+		//for (SuperObject object : gp.getObjects()) {
+		for (int counter = 0; counter < target.length; counter++) {
+		
+			if (target[counter] != null) {
+				// get entity's solid area position
+				entity.getSolidArea().x = entity.getWorldX() + entity.getSolidArea().x;
+				entity.getSolidArea().y = entity.getWorldY() + entity.getSolidArea().y;
+				
+				// get object's solid area position
+				target[counter].getSolidArea().x = target[counter].getWorldX() + target[counter].getSolidArea().x;
+				target[counter].getSolidArea().y = target[counter].getWorldY() + target[counter].getSolidArea().y;
+				
+				switch (entity.getDirection()) {
+					case "up":
+						entity.getSolidArea().y -= entity.getSpeed();
+						if (entity.getSolidArea().intersects(target[counter].getSolidArea())) {
+							entity.setCollisionOn(true);
+							index = counter;
+						}
+						break;
+					case "down":
+						entity.getSolidArea().y += entity.getSpeed();
+						if (entity.getSolidArea().intersects(target[counter].getSolidArea())) {
+							entity.setCollisionOn(true);
+							index = counter;
+						}
+						break;
+					case "left":
+						entity.getSolidArea().x -= entity.getSpeed();
+						if (entity.getSolidArea().intersects(target[counter].getSolidArea())) {
+							entity.setCollisionOn(true);
+							index = counter;
+						}
+						break;
+					case "right":
+						entity.getSolidArea().x += entity.getSpeed();
+						if (entity.getSolidArea().intersects(target[counter].getSolidArea())) {
+							entity.setCollisionOn(true);
+							index = counter;
+						}
+						break;
+				}
+				// reset numbers back to defaults
+				entity.getSolidArea().x = entity.getSolidAreaDefaultX();
+				entity.getSolidArea().y = entity.getSolidAreaDefaultY();
+				target[counter].getSolidArea().x = target[counter].getSolidAreaDefaultX();
+				target[counter].getSolidArea().y = target[counter].getSolidAreaDefaultY();
+			}
+		}
+		
+		return index;
+	}
+	
+	public void checkPlayer(Entity entity) {
+		
+		// get entity's solid area position
+		entity.getSolidArea().x = entity.getWorldX() + entity.getSolidArea().x;
+		entity.getSolidArea().y = entity.getWorldY() + entity.getSolidArea().y;
+		
+		// get player's solid area position
+		gp.getPlayer().getSolidArea().x = gp.getPlayer().getWorldX() + gp.getPlayer().getSolidArea().x;
+		gp.getPlayer().getSolidArea().y = gp.getPlayer().getWorldY() + gp.getPlayer().getSolidArea().y;
+		
+		switch (entity.getDirection()) {
+			case "up":
+				entity.getSolidArea().y -= entity.getSpeed();
+				if (entity.getSolidArea().intersects(gp.getPlayer().getSolidArea())) {
+					entity.setCollisionOn(true);
+				}
+				break;
+			case "down":
+				entity.getSolidArea().y += entity.getSpeed();
+				if (entity.getSolidArea().intersects(gp.getPlayer().getSolidArea())) {
+					entity.setCollisionOn(true);
+				}
+				break;
+			case "left":
+				entity.getSolidArea().x -= entity.getSpeed();
+				if (entity.getSolidArea().intersects(gp.getPlayer().getSolidArea())) {
+					entity.setCollisionOn(true);
+				}
+				break;
+			case "right":
+				entity.getSolidArea().x += entity.getSpeed();
+				if (entity.getSolidArea().intersects(gp.getPlayer().getSolidArea())) {
+					entity.setCollisionOn(true);
+				}
+				break;
+		}
+		// reset numbers back to defaults
+		entity.getSolidArea().x = entity.getSolidAreaDefaultX();
+		entity.getSolidArea().y = entity.getSolidAreaDefaultY();
+		gp.getPlayer().getSolidArea().x = gp.getPlayer().getSolidAreaDefaultX();
+		gp.getPlayer().getSolidArea().y = gp.getPlayer().getSolidAreaDefaultY();
+	}
 }

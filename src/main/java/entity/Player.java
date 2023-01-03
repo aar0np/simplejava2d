@@ -3,18 +3,13 @@ package entity;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import game2d.GamePanel;
-import game2d.GraphicsTools;
 import game2d.KeyHandler;
 
 public class Player extends Entity {
 	private int tileSize;
 	
-	GamePanel gp;
 	KeyHandler keyHandler;
 	
 	final int screenX;
@@ -22,9 +17,10 @@ public class Player extends Entity {
 	// int hasKey = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
-		this.gp = gp;
+		super(gp);
+		
 		this.keyHandler = keyH;
-
+		
 		tileSize = gp.getTileSize();
 		
 		// computing the middle of the screen
@@ -46,32 +42,20 @@ public class Player extends Entity {
 		worldY = gp.getTileSize() * 21;
 		speed = 4;
 		direction = "down";
+		maxHealth = 6;
+		currentHealth = maxHealth;
 	}
 	
 	public void getPlayerImage() {
 		
-		up1 = setupPlayerImage("boy_up_1.png");
-		up2 = setupPlayerImage("boy_up_2.png");
-		down1 = setupPlayerImage("boy_down_1.png");
-		down2 = setupPlayerImage("boy_down_2.png");
-		right1 = setupPlayerImage("boy_right_1.png");
-		right2 = setupPlayerImage("boy_right_2.png");
-		left1 = setupPlayerImage("boy_left_1.png");
-		left2 = setupPlayerImage("boy_left_2.png");
-	}
-	
-	private BufferedImage setupPlayerImage(String imagePath) {
-		BufferedImage image = null;
-		
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream("/player/" + imagePath));
-			// scale player tile
-			image = GraphicsTools.scaleTile(image, tileSize);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		
-		return image;
+		up1 = setupEntityImage("/player/boy_up_1.png");
+		up2 = setupEntityImage("/player/boy_up_2.png");
+		down1 = setupEntityImage("/player/boy_down_1.png");
+		down2 = setupEntityImage("/player/boy_down_2.png");
+		right1 = setupEntityImage("/player/boy_right_1.png");
+		right2 = setupEntityImage("/player/boy_right_2.png");
+		left1 = setupEntityImage("/player/boy_left_1.png");
+		left2 = setupEntityImage("/player/boy_left_2.png");
 	}
 	
 	public void update() {
@@ -95,6 +79,10 @@ public class Player extends Entity {
 			int objectIndex = gp.getCollisionChecker().checkObject(this, true);
 			pickUpObject(objectIndex);
 
+			// check NPC collision
+			int npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
+			interactWNPC(npcIndex);
+			
 			if (!collisionOn) {
 				switch (direction) {
 					case "up":
@@ -121,6 +109,10 @@ public class Player extends Entity {
 			objectIndex = gp.getCollisionChecker().checkObject(this, true);
 			pickUpObject(objectIndex);
 
+			// check NPC collision again
+			npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
+			interactWNPC(npcIndex);
+			
 			if (!collisionOn) {
 				switch (direction) {
 					case "left":
@@ -149,10 +141,23 @@ public class Player extends Entity {
 // RPG version of pickUpObject
 //
 	public void pickUpObject(int index) {
+
 		if (index != 999) {
 			
 		}
 		
+	}
+	
+	public void interactWNPC(int index) {
+		
+		if (index != 999) {
+			if (gp.getKeyHandler().isEnterPressed()) {
+				gp.setGameState(gp.DIALOG_STATE);
+				gp.getNPCs()[index].speak();
+			}
+		}
+
+		gp.getKeyHandler().setEnterPressed(false);
 	}
 	
 // Treasure hunt version pickUpObject	
@@ -241,14 +246,22 @@ public class Player extends Entity {
 	}
 	
 	public int getScreenX() {
-		return screenX;
+		return this.screenX;
 	}
 	
 	public int getScreenY() {
-		return screenY;
+		return this.screenY;
 	}
 	
 //	public int getKeys() {
 //		return hasKey;
 //	}
+	
+	public int getMaxHealth() {
+		return this.maxHealth;
+	}
+	
+	public int getCurrentHealth() {
+		return this.currentHealth;
+	}
 }

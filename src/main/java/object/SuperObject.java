@@ -9,6 +9,8 @@ import game2d.GamePanel;
 public class SuperObject {
 
 	protected BufferedImage image;
+	protected BufferedImage image2;
+	protected BufferedImage image3;
 	protected String name;
 	protected boolean collision = false;
 	
@@ -76,5 +78,13 @@ public class SuperObject {
 	
 	public BufferedImage getImage() {
 		return this.image;
+	}
+	
+	public BufferedImage getImage2() {
+		return this.image2;
+	}
+
+	public BufferedImage getImage3() {
+		return this.image3;
 	}
 }
