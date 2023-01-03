@@ -77,7 +77,6 @@ public class KeyHandler implements KeyListener {
 				}
 			}
 		}
-		
 	}
 
 	public void keyReleased(KeyEvent e) {
@@ -96,6 +95,9 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_D) {
 			rightPressed = false;
 		}
+		if (code == KeyEvent.VK_ENTER) {
+			enterPressed = false;
+		}
 	}
 
 	public boolean isUpPressed() {
@@ -107,7 +109,7 @@ public class KeyHandler implements KeyListener {
 	}
 
 	public boolean isDownPressed() {
-		return downPressed;
+		return this.downPressed;
 	}
 
 	public void setDownPressed(boolean downPressed) {
@@ -115,7 +117,7 @@ public class KeyHandler implements KeyListener {
 	}
 
 	public boolean isLeftPressed() {
-		return leftPressed;
+		return this.leftPressed;
 	}
 
 	public void setLeftPressed(boolean leftPressed) {
@@ -123,7 +125,7 @@ public class KeyHandler implements KeyListener {
 	}
 
 	public boolean isRightPressed() {
-		return rightPressed;
+		return this.rightPressed;
 	}
 
 	public void setRightPressed(boolean rightPressed) {

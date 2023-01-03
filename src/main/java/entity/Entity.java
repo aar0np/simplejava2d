@@ -16,7 +16,7 @@ public class Entity {
 	protected int speed;
 	
 	protected BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
-	protected String direction;
+	protected String direction = "down";
 	
 	protected int spriteCounter = 0;
 	protected int spriteNum = 1;
@@ -29,12 +29,23 @@ public class Entity {
 	
 	protected GamePanel gp;
 	
-	int tileSize;
-	int actionLockCounter = 0;
+	protected int tileSize;
+	protected int actionLockCounter = 0;
 	int dialogIndex = 0;
 	int maxHealth;
 	int currentHealth;
 	String dialogs[] = new String[20];
+	
+	protected BufferedImage image;
+	protected BufferedImage image2;
+	protected BufferedImage image3;
+	protected String name;
+	protected boolean collision = false;
+	protected boolean invincible = false;
+	protected int invincibleCounter = 0;
+	protected int type;
+	protected final int NPC = 1;
+	protected final int MONSTER = 2;
 	
 	public Entity(GamePanel gp) {
 		this.gp = gp;
@@ -75,7 +86,17 @@ public class Entity {
 		collisionOn = false;
 		gp.getCollisionChecker().checkTile(this);
 		gp.getCollisionChecker().checkObject(this, false);
-		gp.getCollisionChecker().checkPlayer(this);
+		gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
+		gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
+		boolean contactPlayer = gp.getCollisionChecker().checkPlayer(this);
+		
+		if (this.type == MONSTER && contactPlayer) {
+			if (!gp.getPlayer().isInvincible()) {
+				gp.getPlayer().decreaseHealth(1);
+				gp.playSoundEffect(10);
+				gp.getPlayer().setInvincible(true);
+			}
+		}
 		
 		if (!collisionOn) {
 			switch (direction) {
@@ -218,5 +239,63 @@ public class Entity {
 	
 	public BufferedImage getEntityImage() {
 		return down1;
+	}
+	
+	public void increaseHealth(int healthPoints) {
+		if (currentHealth < maxHealth) {
+			this.currentHealth += healthPoints;
+			
+			if (currentHealth > maxHealth) {
+				// currentHealth cannot exceed the maximum
+				currentHealth = maxHealth;
+			}
+		}
+	}
+	
+	public void decreaseHealth(int healthPoints) {
+		if (currentHealth > 0) {
+			currentHealth -= healthPoints;
+			
+			if (currentHealth < 0) {
+				// currentHealth cannot go below zero
+				currentHealth = 0;
+			}
+		}
+	}
+	
+	public void replenishHealth() {
+		this.currentHealth = this.maxHealth;
+	}
+	
+	public BufferedImage getImage() {
+		return this.image;
+	}
+	
+	public BufferedImage getImage2() {
+		return this.image2;
+	}
+
+	public BufferedImage getImage3() {
+		return this.image3;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public boolean isCollision() {
+		return collision;
+	}
+
+	public void setCollision(boolean collisionOn) {
+		this.collision = collisionOn;
+	}
+	
+	public int getType() {
+		return this.type;
+	}
+	
+	public void setType(int type) {
+		this.type = type;
 	}
 }

@@ -1,5 +1,6 @@
 package entity;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -82,6 +83,10 @@ public class Player extends Entity {
 			// check NPC collision
 			int npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
 			interactWNPC(npcIndex);
+
+			// check Monster collision
+			int monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
+			contactMonster(monsterIndex);
 			
 			if (!collisionOn) {
 				switch (direction) {
@@ -112,7 +117,15 @@ public class Player extends Entity {
 			// check NPC collision again
 			npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
 			interactWNPC(npcIndex);
-			
+
+			// check Monster collision
+			monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
+			contactMonster(monsterIndex);
+
+			// check events (should only need to do this once
+			// ...maybe?
+			gp.getEventHandler().checkEvent();
+						
 			if (!collisionOn) {
 				switch (direction) {
 					case "left":
@@ -136,6 +149,14 @@ public class Player extends Entity {
 				spriteCounter = 0;
 			}
 		}
+		
+		if (invincible) {
+			invincibleCounter++;
+			if (invincibleCounter >= 60) {
+				invincible = false;
+				invincibleCounter = 0;
+			}
+		}
 	}
 	
 // RPG version of pickUpObject
@@ -156,8 +177,16 @@ public class Player extends Entity {
 				gp.getNPCs()[index].speak();
 			}
 		}
-
-		gp.getKeyHandler().setEnterPressed(false);
+	}
+	
+	public void contactMonster(int index) {
+		if (index != 999) {
+			if (!invincible) {
+				decreaseHealth(1);
+				gp.playSoundEffect(10);
+				invincible = true;
+			}
+		}
 	}
 	
 // Treasure hunt version pickUpObject	
@@ -242,7 +271,14 @@ public class Player extends Entity {
 				break;
 		}
 		
+		if (invincible) {
+			// while invincible, make slightly transparent
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+		}
+		
 		g2.drawImage(image, screenX, screenY, null);
+		
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 	}
 	
 	public int getScreenX() {
@@ -264,4 +300,12 @@ public class Player extends Entity {
 	public int getCurrentHealth() {
 		return this.currentHealth;
 	}
-}
+	
+	public boolean isInvincible() {
+		return this.invincible;
+	}
+	
+	public void setInvincible(boolean invincible) {
+		this.invincible = invincible;
+	}
+ }

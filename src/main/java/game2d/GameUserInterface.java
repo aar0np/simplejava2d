@@ -5,13 +5,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.InputStream;
-//import java.awt.image.BufferedImage;
-import java.text.DecimalFormat;
 
+import entity.Entity;
 import object.Heart;
-import object.SuperObject;
 
 //import object.Key;
 
@@ -50,7 +47,7 @@ public class GameUserInterface {
 		// keyImage = key.getImage();
 		// key = null;
 		
-		SuperObject heart = new Heart(gp);
+		Entity heart = new Heart(gp);
 		heartFull = heart.getImage();
 		heartHalf = heart.getImage2();
 		heartBlank = heart.getImage3();
@@ -75,6 +72,7 @@ public class GameUserInterface {
 			// Pause state
 			drawPauseScreen();
 		} else if (gp.getGameState() == gp.DIALOG_STATE) {
+			drawPlayerHearts();
 			drawDialogScreen();
 		}
 	}

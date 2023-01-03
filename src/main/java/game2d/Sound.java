@@ -21,6 +21,13 @@ public class Sound {
 			soundURL[3] = getClass().getResource("/sounds/unlock.wav");
 			soundURL[4] = getClass().getResource("/sounds/fanfare.wav");
 			soundURL[5] = getClass().getResource("/sounds/blocked.wav");
+			soundURL[6] = getClass().getResource("/sounds/cuttree.wav");
+			soundURL[7] = getClass().getResource("/sounds/dooropen.wav");
+			soundURL[8] = getClass().getResource("/sounds/hitmonster.wav");
+			soundURL[9] = getClass().getResource("/sounds/parry.wav");
+			soundURL[10] = getClass().getResource("/sounds/receivedamage.wav");
+			soundURL[11] = getClass().getResource("/sounds/speak.wav");
+			soundURL[12] = getClass().getResource("/sounds/stairs.wav");
 		}
 	}
 	

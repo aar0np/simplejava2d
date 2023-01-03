@@ -12,9 +12,11 @@ public class OldMan extends Entity {
 		super(gp);
 		tileSize = gp.getTileSize();
 		
+		name = "Old Man";
 		direction = "down";
 		speed = 1;
 		dialogIndex = 0;
+		type = NPC;
 		
 		getOldManImage();
 		setDialog();

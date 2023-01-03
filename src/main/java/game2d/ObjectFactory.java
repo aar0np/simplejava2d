@@ -1,6 +1,7 @@
 package game2d;
 
 import entity.OldMan;
+import monster.GreenSlime;
 
 //import object.Boots;
 //import object.Chest;
@@ -28,6 +29,16 @@ public class ObjectFactory {
 		gp.npcs[0] = new OldMan(gp);
 		gp.npcs[0].setWorldX(tileSize * 21);
 		gp.npcs[0].setWorldY(tileSize * 21);		
+	}
+	
+	public void generateMonsters() {
+		gp.monsters[0] = new GreenSlime(gp);
+		gp.monsters[0].setWorldX(tileSize * 23);
+		gp.monsters[0].setWorldY(tileSize * 36);
+
+		gp.monsters[1] = new GreenSlime(gp);
+		gp.monsters[1].setWorldX(tileSize * 23);
+		gp.monsters[1].setWorldY(tileSize * 37);
 	}
 	
 // treasure hunting verison generateObjects
