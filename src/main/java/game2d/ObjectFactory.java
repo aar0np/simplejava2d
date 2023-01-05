@@ -32,6 +32,7 @@ public class ObjectFactory {
 	}
 	
 	public void generateMonsters() {
+
 		gp.monsters[0] = new GreenSlime(gp);
 		gp.monsters[0].setWorldX(tileSize * 23);
 		gp.monsters[0].setWorldY(tileSize * 36);
@@ -39,6 +40,18 @@ public class ObjectFactory {
 		gp.monsters[1] = new GreenSlime(gp);
 		gp.monsters[1].setWorldX(tileSize * 23);
 		gp.monsters[1].setWorldY(tileSize * 37);
+
+		gp.monsters[2] = new GreenSlime(gp);
+		gp.monsters[2].setWorldX(tileSize * 24);
+		gp.monsters[2].setWorldY(tileSize * 37);
+
+		gp.monsters[3] = new GreenSlime(gp);
+		gp.monsters[3].setWorldX(tileSize * 34);
+		gp.monsters[3].setWorldY(tileSize * 42);
+
+		gp.monsters[4] = new GreenSlime(gp);
+		gp.monsters[4].setWorldX(tileSize * 38);
+		gp.monsters[4].setWorldY(tileSize * 42);
 	}
 	
 // treasure hunting verison generateObjects

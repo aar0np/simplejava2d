@@ -1,5 +1,7 @@
 package entity;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -10,42 +12,68 @@ import javax.imageio.ImageIO;
 import game2d.GamePanel;
 import game2d.GraphicsTools;
 
-public class Entity {
-	protected int worldX;
-	protected int worldY;
-	protected int speed;
-	
+public class Entity {	
+
 	protected BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
-	protected String direction = "down";
-	
-	protected int spriteCounter = 0;
-	protected int spriteNum = 1;
-	
-	protected Rectangle solidArea = new Rectangle(0, 0, 48, 48);
-	protected boolean collisionOn = false;
-	
-	protected int solidAreaDefaultX;
-	protected int solidAreaDefaultY;
-	
-	protected GamePanel gp;
-	
-	protected int tileSize;
-	protected int actionLockCounter = 0;
-	int dialogIndex = 0;
-	int maxHealth;
-	int currentHealth;
-	String dialogs[] = new String[20];
-	
+	protected BufferedImage upAttack1, upAttack2, downAttack1, downAttack2, leftAttack1, leftAttack2, rightAttack1, rightAttack2;
 	protected BufferedImage image;
 	protected BufferedImage image2;
 	protected BufferedImage image3;
-	protected String name;
-	protected boolean collision = false;
-	protected boolean invincible = false;
+
+	protected Rectangle solidArea = new Rectangle(0, 0, 48, 48);
+	protected Rectangle attackArea = new Rectangle(0, 0, 0, 0);
+
+	protected GamePanel gp;
+
+	protected String direction = "down";
+
+	protected int worldX;
+	protected int worldY;
+	protected int spriteCounter = 0;
+	protected int spriteNum = 1;
+	protected int solidAreaDefaultX;
+	protected int solidAreaDefaultY;
+	protected int tileSize;
+	protected int actionLockCounter = 0;
 	protected int invincibleCounter = 0;
-	protected int type;
+	protected int dyingCounter = 0;
 	protected final int NPC = 1;
 	protected final int MONSTER = 2;
+	
+	protected boolean collisionOn = false;
+	protected boolean collision = false;
+	protected boolean invincible = false;
+	protected boolean alive = true;
+	protected boolean dying = false;
+	
+	String dialogs[] = new String[20];
+	
+	int dialogIndex = 0;
+	int hpBarCounter = 0;
+	
+	boolean attacking = false;
+	boolean hpBarOn = false;
+	
+	// character statistics
+	protected String name;
+	protected int speed;
+	protected int type;
+	protected int maxHealth;
+	protected int currentHealth;
+	protected int level;
+	protected int strength; 
+	protected int dexterity;
+	protected int attack;
+	protected int defense;
+	protected int experiencePoints;
+	protected int nextLevelExp;
+	protected int coin;
+	protected Entity currentWeapon;
+	protected Entity currentShield;
+	
+	// item attributes
+	protected int attackValue;
+	protected int defenseValue;
 	
 	public Entity(GamePanel gp) {
 		this.gp = gp;
@@ -54,6 +82,18 @@ public class Entity {
 	
 	public void setAction() {
 		
+	}
+	
+	public void damageReaction() {
+		
+	}
+	
+	protected int computeAttack() {
+		return strength * currentWeapon.getAttackValue();
+	}
+	
+	protected int computeDefense() {
+		return dexterity * currentShield.getDefenseValue();
 	}
 	
 	public void speak() {
@@ -92,8 +132,14 @@ public class Entity {
 		
 		if (this.type == MONSTER && contactPlayer) {
 			if (!gp.getPlayer().isInvincible()) {
-				gp.getPlayer().decreaseHealth(1);
 				gp.playSoundEffect(10);
+				
+				int damage = attack - gp.getPlayer().getDefense();
+				if (damage < 0) {
+					damage = 0;
+				}
+
+				gp.getPlayer().decreaseHealth(damage);
 				gp.getPlayer().setInvincible(true);
 			}
 		}
@@ -127,15 +173,22 @@ public class Entity {
 			spriteCounter = 0;
 		}
 
+		if (invincible) {
+			invincibleCounter++;
+			if (invincibleCounter >= 40) {
+				invincible = false;
+				invincibleCounter = 0;
+			}
+		}
 	}
 	
-	protected BufferedImage setupEntityImage(String imagePath) {
+	protected BufferedImage setupEntityImage(String imagePath, int width, int height) {
 		BufferedImage image = null;
 		
 		try {
 			image = ImageIO.read(getClass().getResourceAsStream(imagePath));
 			// scale player tile
-			image = GraphicsTools.scaleTile(image, tileSize);
+			image = GraphicsTools.scaleTile(image, width, height);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -189,8 +242,59 @@ public class Entity {
 				break;
 			}
 
+			if (type == MONSTER && hpBarOn == true) {
+				// monster HP bar
+				double oneScale = (double) tileSize / maxHealth;
+				double hpBarValue = oneScale * currentHealth;
+				
+				g2.setColor(new Color(35, 35, 35));
+				g2.fillRect(screenX - 1, screenY - 16, tileSize+2, 12);
+				g2.setColor(new Color(255, 0, 30));
+				g2.fillRect(screenX, screenY - 15, (int) hpBarValue, 10);
+				
+				hpBarCounter++;
+				
+				if (hpBarCounter >= 300) {
+					// show bar for 300 frames or 5 seconds
+					hpBarCounter = 0;
+					hpBarOn = false;
+				}
+			}
+			
+			if (invincible) {
+				hpBarCounter = 0;
+				hpBarOn = true;
+				// while invincible, make slightly transparent
+				//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+				changeAlpha(g2, 0.4f);
+			}
+			
+			if (dying) {
+				dyingAnimation(g2);
+			}
+			
 			g2.drawImage(image, screenX, screenY, tileSize, tileSize, null);
+			
+			//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+			changeAlpha(g2, 1f);
 		}
+	}
+	
+	private void dyingAnimation(Graphics2D g2) {
+		dyingCounter++;
+		
+		int deathRate = 5;
+		
+		changeAlpha(g2, 1f - (dyingCounter * deathRate * 0.01f));
+		
+		if (dyingCounter >= 20) {
+			dying = false;
+			alive = false;
+		}
+	}
+	
+	protected void changeAlpha(Graphics2D g2, float alpha) {
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 	}
 	
 	public int getWorldX() {
@@ -241,6 +345,10 @@ public class Entity {
 		return down1;
 	}
 	
+	public int getCurrentHealth() {
+		return this.currentHealth;
+	}
+	
 	public void increaseHealth(int healthPoints) {
 		if (currentHealth < maxHealth) {
 			this.currentHealth += healthPoints;
@@ -265,6 +373,10 @@ public class Entity {
 	
 	public void replenishHealth() {
 		this.currentHealth = this.maxHealth;
+	}
+	
+	public BufferedImage getDn1() {
+		return this.down1;
 	}
 	
 	public BufferedImage getImage() {
@@ -297,5 +409,85 @@ public class Entity {
 	
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	public boolean isInvincible() {
+		return this.invincible;
+	}
+	
+	public void setInvincible(boolean invincible) {
+		this.invincible = invincible;
+	}
+	
+	public boolean isAlive() {
+		return this.alive;
+	}
+	
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
+	
+	public boolean isDying() {
+		return this.dying;
+	}
+	
+	public void setDying(boolean dying) {
+		this.dying = dying;
+	}
+	
+	protected int getAttackValue() {
+		return this.attackValue;
+	}
+	
+	protected int getDefenseValue() {
+		return this.defenseValue;
+	}
+
+	public int getMaxHealth() {
+		return maxHealth;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public int getStrength() {
+		return strength;
+	}
+
+	public int getDexterity() {
+		return dexterity;
+	}
+
+	public int getAttack() {
+		return attack;
+	}
+
+	public int getDefense() {
+		return defense;
+	}
+
+	public int getExperiencePoints() {
+		return experiencePoints;
+	}
+
+	public void incrementExperiencePoints(int xp) {
+		this.experiencePoints += xp;
+	}
+	
+	public int getNextLevelExp() {
+		return nextLevelExp;
+	}
+
+	public int getCoin() {
+		return coin;
+	}
+
+	public Entity getCurrentWeapon() {
+		return currentWeapon;
+	}
+
+	public Entity getCurrentShield() {
+		return currentShield;
 	}
 }

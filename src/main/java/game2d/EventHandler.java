@@ -108,8 +108,12 @@ public class EventHandler {
 	public void healingPool(int gameState) {
 		if (gp.getKeyHandler().isEnterPressed()) {
 			gp.setGameState(gameState);
+			gp.getPlayer().setAttackCanceled(true);
 			gp.getGameUI().setCurrentDialog("You enjoy some healing water.");
 			gp.getPlayer().replenishHealth();
+			
+			// new twist - if you use healing water, monsters respawn!
+			gp.getObjectFactory().generateMonsters();
 		}
 	}
 	

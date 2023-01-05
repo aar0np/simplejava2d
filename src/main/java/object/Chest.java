@@ -9,6 +9,6 @@ public class Chest extends Entity {
 		super(gp);
 		
 		name = "Chest";
-		down1 = setupEntityImage("/objects/chest.png");
+		down1 = setupEntityImage("/objects/chest.png", tileSize, tileSize);
 	}
 }

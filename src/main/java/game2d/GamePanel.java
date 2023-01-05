@@ -23,7 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
 	final int scale = 3;
 
 	// screen settings
-	private final int tileSize = originalTileSize * scale;  // 48x48 by default
+	final int tileSize = originalTileSize * scale;  // 48x48 by default
 	final int maxScreenCol = 16;
 	final int maxScreenRow = 12;
 	final int screenWidth = tileSize * maxScreenCol; // 768x
@@ -55,10 +55,12 @@ public class GamePanel extends JPanel implements Runnable {
 	List<Entity> entityList = new ArrayList<>();
 	
 	private int gameState;
+
 	public final int TITLE_STATE = 0;
 	public final int PLAY_STATE = 1;
 	public final int PAUSE_STATE = 2;
 	public final int DIALOG_STATE = 3;
+	public final int CHARACTER_SHEET_STATE = 4;
 	
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -126,9 +128,15 @@ public class GamePanel extends JPanel implements Runnable {
 				}
 			}
 			
-			for (Entity monster : monsters) {
-				if (monster != null) {
-					monster.update();
+			//for (Entity monster : monsters) {
+			// difference of reference vs value
+			for (int index = 0; index < monsters.length; index++) {
+				if (monsters[index] != null) {
+					if (monsters[index].isAlive() && !monsters[index].isDying()) {
+						monsters[index].update();
+					} else if (!monsters[index].isAlive()) {
+						monsters[index] = null;
+					}
 				}
 			}
 		}
@@ -251,6 +259,10 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public EventHandler getEventHandler() {
 		return this.eventHandler;
+	}
+	
+	public ObjectFactory getObjectFactory() {
+		return this.oFactory;
 	}
 	
 	public int getTileSize() {

@@ -9,6 +9,6 @@ public class Key extends Entity {
 		super(gp);
 		
 		name = "Key";
-		down1 = setupEntityImage("/objects/key.png");
+		down1 = setupEntityImage("/objects/key.png", tileSize, tileSize);
 	}
 }

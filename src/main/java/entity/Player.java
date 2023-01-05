@@ -1,20 +1,24 @@
 package entity;
 
-import java.awt.AlphaComposite;
+//import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import game2d.GamePanel;
 import game2d.KeyHandler;
+import object.ShieldWood;
+import object.SwordNormal;
 
 public class Player extends Entity {
-	private int tileSize;
-	
-	KeyHandler keyHandler;
-	
+	int tileSize;
 	final int screenX;
 	final int screenY;
+	
+	KeyHandler keyHandler;
+
+	boolean attackCanceled = false;
+	
 	// int hasKey = 0;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
@@ -34,35 +38,68 @@ public class Player extends Entity {
 		solidAreaDefaultX = solidArea.x;
 		solidAreaDefaultY = solidArea.y;
 		
+		// this can be adjusted based on type of weapon
+		attackArea.width = 36;
+		attackArea.height = 36;
+		
 		setDefaultValues();
-		getPlayerImage();
+		getPlayerImages();
+		getPlayerAttackImages();
 	}
 	
 	private void setDefaultValues() {
+		// position
 		worldX = gp.getTileSize() * 23;
 		worldY = gp.getTileSize() * 21;
-		speed = 4;
 		direction = "down";
+
+		// stats
+		speed = 4;
 		maxHealth = 6;
 		currentHealth = maxHealth;
+		level = 1;
+		strength = 1;
+		dexterity = 1;
+		experiencePoints = 0;
+		nextLevelExp = 5;
+		coin = 0;
+		currentWeapon = new SwordNormal(gp);
+		currentShield = new ShieldWood(gp);
+		attack = computeAttack();
+		defense = computeDefense();
 	}
 	
-	public void getPlayerImage() {
+	private void getPlayerImages() {
 		
-		up1 = setupEntityImage("/player/boy_up_1.png");
-		up2 = setupEntityImage("/player/boy_up_2.png");
-		down1 = setupEntityImage("/player/boy_down_1.png");
-		down2 = setupEntityImage("/player/boy_down_2.png");
-		right1 = setupEntityImage("/player/boy_right_1.png");
-		right2 = setupEntityImage("/player/boy_right_2.png");
-		left1 = setupEntityImage("/player/boy_left_1.png");
-		left2 = setupEntityImage("/player/boy_left_2.png");
+		up1 = setupEntityImage("/player/boy_up_1.png", tileSize, tileSize);
+		up2 = setupEntityImage("/player/boy_up_2.png", tileSize, tileSize);
+		down1 = setupEntityImage("/player/boy_down_1.png", tileSize, tileSize);
+		down2 = setupEntityImage("/player/boy_down_2.png", tileSize, tileSize);
+		right1 = setupEntityImage("/player/boy_right_1.png", tileSize, tileSize);
+		right2 = setupEntityImage("/player/boy_right_2.png", tileSize, tileSize);
+		left1 = setupEntityImage("/player/boy_left_1.png", tileSize, tileSize);
+		left2 = setupEntityImage("/player/boy_left_2.png", tileSize, tileSize);
+	}
+	
+	private void getPlayerAttackImages() {
+		
+		upAttack1 = setupEntityImage("/player/boy_attack_up_1.png", tileSize, tileSize * 2);
+		upAttack2 = setupEntityImage("/player/boy_attack_up_2.png", tileSize, tileSize * 2);
+		downAttack1 = setupEntityImage("/player/boy_attack_down_1.png", tileSize, tileSize * 2);
+		downAttack2 = setupEntityImage("/player/boy_attack_down_2.png", tileSize, tileSize * 2);
+		rightAttack1 = setupEntityImage("/player/boy_attack_right_1.png", tileSize * 2, tileSize);
+		rightAttack2 = setupEntityImage("/player/boy_attack_right_2.png", tileSize * 2, tileSize);
+		leftAttack1 = setupEntityImage("/player/boy_attack_left_1.png", tileSize * 2, tileSize);
+		leftAttack2 = setupEntityImage("/player/boy_attack_left_2.png", tileSize * 2, tileSize);
 	}
 	
 	public void update() {
 		
-		if (keyHandler.isUpPressed() || keyHandler.isDownPressed()
-				|| keyHandler.isRightPressed() || keyHandler.isLeftPressed()) {
+		if (attacking) {
+			attack();
+		} else if (keyHandler.isUpPressed() || keyHandler.isDownPressed()
+				|| keyHandler.isRightPressed() || keyHandler.isLeftPressed()
+				|| keyHandler.isEnterPressed()) {
 
 			// This used to be one big if/else, but I separated them
 			// to allow diagonal movement.
@@ -78,17 +115,16 @@ public class Player extends Entity {
 
 			// check object collision
 			int objectIndex = gp.getCollisionChecker().checkObject(this, true);
-			pickUpObject(objectIndex);
+			//pickUpObject(objectIndex);
 
 			// check NPC collision
 			int npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
-			interactWNPC(npcIndex);
 
 			// check Monster collision
 			int monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
-			contactMonster(monsterIndex);
+			//contactMonster(monsterIndex);
 			
-			if (!collisionOn) {
+			if (!collisionOn && !gp.getKeyHandler().isEnterPressed()) {
 				switch (direction) {
 					case "up":
 						worldY -= speed;
@@ -116,7 +152,7 @@ public class Player extends Entity {
 
 			// check NPC collision again
 			npcIndex = gp.getCollisionChecker().checkEntity(this, gp.getNPCs());
-			interactWNPC(npcIndex);
+			interactWNPC(npcIndex, gp.getKeyHandler().isEnterPressed());
 
 			// check Monster collision
 			monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
@@ -126,7 +162,7 @@ public class Player extends Entity {
 			// ...maybe?
 			gp.getEventHandler().checkEvent();
 						
-			if (!collisionOn) {
+			if (!collisionOn && !gp.getKeyHandler().isEnterPressed()) {
 				switch (direction) {
 					case "left":
 						worldX -= speed;
@@ -136,6 +172,15 @@ public class Player extends Entity {
 						break;						
 				}
 			}
+			
+			if (gp.getKeyHandler().isEnterPressed() && !gp.getPlayer().isAttackCanceled()) {
+				gp.playSoundEffect(13);
+				attacking = true;
+				spriteCounter = 0;
+			}
+			
+			gp.getPlayer().setAttackCanceled(false);
+			gp.getKeyHandler().setEnterPressed(false);
 			
 			// how to influence the walking animation
 			spriteCounter++;
@@ -161,7 +206,7 @@ public class Player extends Entity {
 	
 // RPG version of pickUpObject
 //
-	public void pickUpObject(int index) {
+	private void pickUpObject(int index) {
 
 		if (index != 999) {
 			
@@ -169,23 +214,132 @@ public class Player extends Entity {
 		
 	}
 	
-	public void interactWNPC(int index) {
+	private void interactWNPC(int index, boolean attackOrInteract) {
 		
-		if (index != 999) {
-			if (gp.getKeyHandler().isEnterPressed()) {
+		if (attackOrInteract) {
+			if (index != 999) {
+				//gp.playSoundEffect(11);
 				gp.setGameState(gp.DIALOG_STATE);
 				gp.getNPCs()[index].speak();
+				attackCanceled = true;
 			}
 		}
 	}
 	
-	public void contactMonster(int index) {
+	private void contactMonster(int index) {
 		if (index != 999) {
 			if (!invincible) {
-				decreaseHealth(1);
 				gp.playSoundEffect(10);
+				
+				int damage = gp.getMonsters()[index].getAttack() - defense;
+				if (damage < 0) {
+					damage = 0;
+				}
+				
+				decreaseHealth(damage);
 				invincible = true;
 			}
+		}
+	}
+
+	private void damageMonster(int index) {
+		if (index != 999) {
+
+			if (!gp.getMonsters()[index].isInvincible()) {
+				gp.playSoundEffect(8);
+
+				int damage = attack - gp.getMonsters()[index].getDefense();
+				if (damage < 0) {
+					damage = 0;
+				}
+				
+				gp.getMonsters()[index].decreaseHealth(damage);
+				gp.getGameUI().addMessage(damage + " damage!");
+				gp.getMonsters()[index].setInvincible(true);
+				gp.getMonsters()[index].damageReaction();
+				
+				if (gp.getMonsters()[index].getCurrentHealth() <= 0) {
+					// monster begins to die
+					gp.getMonsters()[index].setDying(true);
+					gp.getGameUI().addMessage(gp.getMonsters()[index].name + " killed!");
+					gp.getGameUI().addMessage("XP + " + gp.getMonsters()[index].getExperiencePoints());
+					incrementExperiencePoints(gp.getMonsters()[index].getExperiencePoints());
+					checkLevelUp();
+				}
+			}
+		}
+	}
+
+	private void checkLevelUp() {
+		if (experiencePoints >= nextLevelExp) {
+			// level up!
+			level++;
+			nextLevelExp = nextLevelExp *2;
+			maxHealth += 2;
+			strength++;
+			dexterity++;
+			// recompute attack and defense modifiers
+			attack = computeAttack();
+			defense = computeDefense();
+			
+			// play sound
+			gp.playSoundEffect(14);
+			
+			// show message in dialog window
+			gp.setGameState(gp.DIALOG_STATE);
+			gp.getGameUI().setCurrentDialog("You are now level #" + level + "!");
+		}
+	}
+	
+	private void attack() {
+		
+		spriteCounter++;
+		if (spriteCounter <= 5) {
+			// first 5 frames show attack1 image
+			spriteNum = 1;
+		} else if (spriteCounter > 5 && spriteCounter <= 25) {
+			// second 20 frames show attack2 image
+			spriteNum = 2;
+			
+			// check if attack hits
+			int currentWorldX = worldX;
+			int currentWorldY = worldY;
+			int solidAreaWidth = solidArea.width;
+			int solidAreaHeight = solidArea.height;
+			
+			switch (direction) {
+				case "up":
+					worldY -= attackArea.height;
+					break;
+				case "down":
+					worldY += attackArea.height;
+					break;
+				case "left":
+					worldX -= attackArea.width;
+					break;
+				case "right":
+					worldX += attackArea.width;
+					break;
+			}
+			
+			solidArea.width = attackArea.width;
+			solidArea.height = attackArea.height;
+			
+			// check if our attack has struck any of the monsters
+			int monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
+			damageMonster(monsterIndex);
+			
+			// restore original values
+			worldX = currentWorldX;
+			worldY = currentWorldY;
+			solidArea.width = solidAreaWidth;
+			solidArea.height = solidAreaHeight;
+			
+		} else {
+			// show attack 1 image for remainder of frames
+			spriteNum = 1;
+			spriteCounter = 0;
+			attacking = false;
 		}
 	}
 	
@@ -237,48 +391,87 @@ public class Player extends Entity {
 		
 		BufferedImage image = null;
 		
+		int tempScreenX = screenX;
+		int tempScreenY = screenY;
+		
 		switch(direction) {
 			case "up":
-				if (spriteNum == 1) {
-					image = up1;
+				if (!attacking) {
+					if (spriteNum == 1) {
+						image = up1;
+					} else {
+						image = up2;
+					}
 				} else {
-					image = up2;
+					tempScreenY -= tileSize; 
+					if (spriteNum == 1) {
+						image = upAttack1;
+					} else {
+						image = upAttack2;
+					}
 				}
 				break;
 				
 			case "down":
-				if (spriteNum == 1) {
-					image = down1;
+				if (!attacking) {
+					if (spriteNum == 1) {
+						image = down1;
+					} else {
+						image = down2;
+					}
 				} else {
-					image = down2;
+					if (spriteNum == 1) {
+						image = downAttack1;
+					} else {
+						image = downAttack2;
+					}
 				}
 				break;
 				
 			case "left":
-				if (spriteNum == 1) {
-					image = left1;
+				if (!attacking) {
+					if (spriteNum == 1) {
+						image = left1;
+					} else {
+						image = left2;
+					}
 				} else {
-					image = left2;
+					tempScreenX -= tileSize;
+					if (spriteNum == 1) {
+						image = leftAttack1;
+					} else {
+						image = leftAttack2;
+					}					
 				}
 				break;
 				
 			case "right":
-				if (spriteNum == 1) {
-					image = right1;
+				if (!attacking) {
+					if (spriteNum == 1) {
+						image = right1;
+					} else {
+						image = right2;
+					}
 				} else {
-					image = right2;
+					if (spriteNum == 1) {
+						image = rightAttack1;
+					} else {
+						image = rightAttack2;
+					}
 				}
 				break;
 		}
 		
 		if (invincible) {
 			// while invincible, make slightly transparent
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+			// g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+			changeAlpha(g2, 0.5f);
 		}
 		
-		g2.drawImage(image, screenX, screenY, null);
+		g2.drawImage(image, tempScreenX, tempScreenY, null);
 		
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+		//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+		changeAlpha(g2, 1f);
 	}
 	
 	public int getScreenX() {
@@ -308,4 +501,12 @@ public class Player extends Entity {
 	public void setInvincible(boolean invincible) {
 		this.invincible = invincible;
 	}
+	
+	public boolean isAttackCanceled() {
+		return this.attackCanceled;
+	}
+	
+	public void setAttackCanceled(boolean attackCanceled) {
+		this.attackCanceled = attackCanceled;
+	}	
  }

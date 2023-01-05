@@ -24,14 +24,14 @@ public class OldMan extends Entity {
 
 	public void getOldManImage() {
 		
-		up1 = setupEntityImage("/npc/oldman_up_1.png");
-		up2 = setupEntityImage("/npc/oldman_up_2.png");
-		down1 = setupEntityImage("/npc/oldman_down_1.png");
-		down2 = setupEntityImage("/npc/oldman_down_2.png");
-		right1 = setupEntityImage("/npc/oldman_right_1.png");
-		right2 = setupEntityImage("/npc/oldman_right_2.png");
-		left1 = setupEntityImage("/npc/oldman_left_1.png");
-		left2 = setupEntityImage("/npc/oldman_left_2.png");
+		up1 = setupEntityImage("/npc/oldman_up_1.png", tileSize, tileSize);
+		up2 = setupEntityImage("/npc/oldman_up_2.png", tileSize, tileSize);
+		down1 = setupEntityImage("/npc/oldman_down_1.png", tileSize, tileSize);
+		down2 = setupEntityImage("/npc/oldman_down_2.png", tileSize, tileSize);
+		right1 = setupEntityImage("/npc/oldman_right_1.png", tileSize, tileSize);
+		right2 = setupEntityImage("/npc/oldman_right_2.png", tileSize, tileSize);
+		left1 = setupEntityImage("/npc/oldman_left_1.png", tileSize, tileSize);
+		left2 = setupEntityImage("/npc/oldman_left_2.png", tileSize, tileSize);
 	}
 
 	public void setDialog() {

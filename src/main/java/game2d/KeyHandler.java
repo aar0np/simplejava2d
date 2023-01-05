@@ -26,59 +26,90 @@ public class KeyHandler implements KeyListener {
 		
 		if (gp.getGameState() ==  gp.PLAY_STATE) {
 			// PLAY STATE
-			
-			if (code == KeyEvent.VK_W) {
-				upPressed = true;
-			}
-			if (code == KeyEvent.VK_A) {
-				leftPressed = true;
-			}
-			if (code == KeyEvent.VK_S) {
-				downPressed = true;
-			}
-			if (code == KeyEvent.VK_D) {
-				rightPressed = true;
-			}
-			if (code == KeyEvent.VK_ESCAPE) {
-				gp.setGameState(gp.PAUSE_STATE);
-			}
-			if (code == KeyEvent.VK_ENTER) {
-				enterPressed = true;
-			}
+			playState(code);
 		} else if (gp.getGameState() == gp.PAUSE_STATE) {
 			// PAUSE STATE
-			
-			if (code == KeyEvent.VK_ESCAPE) {
-				gp.setGameState(gp.PLAY_STATE);
-			}
+			pauseState(code);
 		} else if (gp.getGameState() == gp.DIALOG_STATE) {
 			// DIALOG STATE
-			if (code == KeyEvent.VK_ENTER) {
-				gp.setGameState(gp.PLAY_STATE);
-			}
-		} else if (gp.getGameState() == gp.TITLE_STATE) {
-			if (code == KeyEvent.VK_W) {
-				gp.getGameUI().decrementCommandNum();
-			} else if (code == KeyEvent.VK_S) {
-				gp.getGameUI().incrementCommandNum();
-			}
-			
-			if (code == KeyEvent.VK_ENTER) {
-				if (gp.getGameUI().getCommandNum() == 0) {
-					// new game
-					gp.setGameState(gp.PLAY_STATE);
-					gp.playMusic(0);
-				} else if (gp.getGameUI().getCommandNum() == 1) {
-					// load game
-					
-				} else {
-					// quit
-					System.exit(0);
-				}
-			}
+			dialogState(code);
+		} else if (gp.getGameState() == gp.CHARACTER_SHEET_STATE) {
+			// CHARACTER SHEET STATE
+			characterSheetState(code);
+		} else {
+		// } else if (gp.getGameState() == gp.TITLE_STATE) {
+			titleState(code);
 		}
 	}
 
+	private void playState(int code) {
+		
+		if (code == KeyEvent.VK_W) {
+			upPressed = true;
+		}
+		if (code == KeyEvent.VK_A) {
+			leftPressed = true;
+		}
+		if (code == KeyEvent.VK_S) {
+			downPressed = true;
+		}
+		if (code == KeyEvent.VK_D) {
+			rightPressed = true;
+		}
+		if (code == KeyEvent.VK_ENTER) {
+			enterPressed = true;
+		}
+		if (code == KeyEvent.VK_ESCAPE) {
+			gp.setGameState(gp.PAUSE_STATE);
+		}
+		if (code == KeyEvent.VK_C) {
+			gp.setGameState(gp.CHARACTER_SHEET_STATE);
+		}
+	}
+	
+	private void pauseState(int code) {
+		if (code == KeyEvent.VK_ESCAPE) {
+			gp.setGameState(gp.PLAY_STATE);
+		}
+	}
+
+	private void dialogState(int code) {
+
+		if (code == KeyEvent.VK_ENTER) {
+			gp.setGameState(gp.PLAY_STATE);
+		}
+	}
+	
+	private void characterSheetState(int code) {
+		
+		if (code == KeyEvent.VK_C) {
+			gp.setGameState(gp.PLAY_STATE);
+		}		
+	}
+	
+	private void titleState(int code) {
+		
+		if (code == KeyEvent.VK_W) {
+			gp.getGameUI().decrementCommandNum();
+		} else if (code == KeyEvent.VK_S) {
+			gp.getGameUI().incrementCommandNum();
+		}
+		
+		if (code == KeyEvent.VK_ENTER) {
+			if (gp.getGameUI().getCommandNum() == 0) {
+				// new game
+				gp.setGameState(gp.PLAY_STATE);
+				gp.playMusic(0);
+			} else if (gp.getGameUI().getCommandNum() == 1) {
+				// load game
+				
+			} else {
+				// quit
+				System.exit(0);
+			}
+		}		
+	}
+	
 	public void keyReleased(KeyEvent e) {
 		
 		int code = e.getKeyCode();

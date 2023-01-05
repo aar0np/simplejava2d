@@ -108,7 +108,7 @@ public class TileManager {
 		try {
 			tiles[tileIndex] = new Tile();
 			BufferedImage scaledImage = ImageIO.read(getClass().getResourceAsStream("/tiles/" + imagePath));
-			scaledImage = GraphicsTools.scaleTile(scaledImage, tileSize);
+			scaledImage = GraphicsTools.scaleTile(scaledImage, tileSize, tileSize);
 			tiles[tileIndex].setImage(scaledImage);
 			tiles[tileIndex].setCollision(collision);
 			

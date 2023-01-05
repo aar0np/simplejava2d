@@ -9,6 +9,6 @@ public class Boots extends Entity {
 		super(gp);
 		
 		name = "Boots";
-		down1 = setupEntityImage("/objects/boots.png");
+		down1 = setupEntityImage("/objects/boots.png", tileSize, tileSize);
 	}
 }

@@ -11,10 +11,13 @@ public class GreenSlime extends Entity {
 		super(gp);
 		
 		name = "Green Slime";
-		speed = 1;
-		int maxHealth = 4;
-		int currentHealth = maxHealth;
 		type = MONSTER;
+		speed = 1;
+		maxHealth = 4;
+		currentHealth = maxHealth;
+		attack = 5;
+		defense = 0;
+		experiencePoints = 2;
 		
 		solidArea.x = 3;
 		solidArea.y = 18;
@@ -27,14 +30,14 @@ public class GreenSlime extends Entity {
 	}
 	
 	public void getGreenSlimeImages() {
-		up1 = setupEntityImage("/monsters/greenslime_down_1.png");
-		up2 = setupEntityImage("/monsters/greenslime_down_2.png");
-		down1 = setupEntityImage("/monsters/greenslime_down_1.png");
-		down2 = setupEntityImage("/monsters/greenslime_down_2.png");
-		right1 = setupEntityImage("/monsters/greenslime_down_1.png");
-		right2 = setupEntityImage("/monsters/greenslime_down_2.png");
-		left1 = setupEntityImage("/monsters/greenslime_down_1.png");
-		left2 = setupEntityImage("/monsters/greenslime_down_2.png");
+		up1 = setupEntityImage("/monsters/greenslime_down_1.png", tileSize, tileSize);
+		up2 = setupEntityImage("/monsters/greenslime_down_2.png", tileSize, tileSize);
+		down1 = setupEntityImage("/monsters/greenslime_down_1.png", tileSize, tileSize);
+		down2 = setupEntityImage("/monsters/greenslime_down_2.png", tileSize, tileSize);
+		right1 = setupEntityImage("/monsters/greenslime_down_1.png", tileSize, tileSize);
+		right2 = setupEntityImage("/monsters/greenslime_down_2.png", tileSize, tileSize);
+		left1 = setupEntityImage("/monsters/greenslime_down_1.png", tileSize, tileSize);
+		left2 = setupEntityImage("/monsters/greenslime_down_2.png", tileSize, tileSize);
 	}
 
 	public void setAction() {
@@ -58,5 +61,11 @@ public class GreenSlime extends Entity {
 			
 			actionLockCounter = 0;
 		}
+	}
+	
+	public void damageReaction() {
+
+		actionLockCounter = 0;
+		direction = gp.getPlayer().getDirection();
 	}
 }
