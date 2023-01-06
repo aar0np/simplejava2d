@@ -1,17 +1,17 @@
 package object;
 
-import javax.imageio.ImageIO;
+import entity.Entity;
+import game2d.GamePanel;
 
-public class Door extends SuperObject {
+public class Door extends Entity {
 
-	public Door() {
+	public Door(GamePanel gp) {
+		super(gp);
+		
 		name = "Door";
+		
 		collision = true;
 		
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream("/objects/door.png"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		down1 = setupEntityImage("/objects/door.png", tileSize, tileSize);
 	}
 }

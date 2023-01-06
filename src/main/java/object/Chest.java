@@ -1,16 +1,14 @@
 package object;
 
-import javax.imageio.ImageIO;
+import entity.Entity;
+import game2d.GamePanel;
 
-public class Chest extends SuperObject {
+public class Chest extends Entity {
 
-	public Chest() {
-		name = "Chest";
+	public Chest(GamePanel gp) {
+		super(gp);
 		
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream("/objects/chest.png"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		name = "Chest";
+		down1 = setupEntityImage("/objects/chest.png", tileSize, tileSize);
 	}
 }

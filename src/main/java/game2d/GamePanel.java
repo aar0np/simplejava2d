@@ -4,11 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.JPanel;
 
+import entity.Entity;
 import entity.Player;
-import object.SuperObject;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -19,7 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
 	final int scale = 3;
 
 	// screen settings
-	private final int tileSize = originalTileSize * scale;  // 48x48 by default
+	final int tileSize = originalTileSize * scale;  // 48x48 by default
 	final int maxScreenCol = 16;
 	final int maxScreenRow = 12;
 	final int screenWidth = tileSize * maxScreenCol; // 768x
@@ -28,21 +32,35 @@ public class GamePanel extends JPanel implements Runnable {
 	// world map settings
 	final int maxWorldCol = 50;
 	final int maxWorldRow = 50;
-	final int worldWidth = tileSize * maxWorldCol;
-	final int worldHeight = tileSize * maxWorldRow;
 	
 	// frames per second
 	final int fPS = 60;
 	
+	// Game engine
 	private TileManager tileMgr = new TileManager(this);
-	
-	KeyHandler keyHandler = new KeyHandler();
-	Thread gameThread;
-	
+	private Thread gameThread;
+	KeyHandler keyHandler = new KeyHandler(this);
+	Sound sound = new Sound(false);
+	Sound music = new Sound(true);
 	CollisionChecker cChecker = new CollisionChecker(this);
 	ObjectFactory oFactory = new ObjectFactory(this);
+	GameUserInterface gameUI = new GameUserInterface(this);
+	EventHandler eventHandler = new EventHandler(this);
+	
+	// Entities and objects
 	Player player = new Player(this,keyHandler);
-	SuperObject objects[] = new SuperObject[10];
+	Entity objects[] = new Entity[10];
+	Entity npcs[] = new Entity[10];
+	Entity monsters[] = new Entity[20];
+	List<Entity> entityList = new ArrayList<>();
+	
+	private int gameState;
+
+	public final int TITLE_STATE = 0;
+	public final int PLAY_STATE = 1;
+	public final int PAUSE_STATE = 2;
+	public final int DIALOG_STATE = 3;
+	public final int CHARACTER_SHEET_STATE = 4;
 	
 	public GamePanel() {
 		this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -54,11 +72,20 @@ public class GamePanel extends JPanel implements Runnable {
 
 	public void setupGame() {
 		oFactory.generateObjects();
+		oFactory.generateNPCs();
+		oFactory.generateMonsters();
+		//playMusic(0);
+		//stopMusic();
+		gameState = TITLE_STATE;
 	}
 	
 	public void startGameThread() {
 		gameThread = new Thread(this);
 		gameThread.start();
+	}
+	
+	public void stopGame() {
+		gameThread = null;
 	}
 	
 	public void run() {
@@ -91,7 +118,28 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void update() {
-		player.update();
+		
+		if (gameState == PLAY_STATE) {
+			player.update();
+			
+			for (Entity npc : npcs) {
+				if (npc != null) {
+					npc.update();
+				}
+			}
+			
+			//for (Entity monster : monsters) {
+			// difference of reference vs value
+			for (int index = 0; index < monsters.length; index++) {
+				if (monsters[index] != null) {
+					if (monsters[index].isAlive() && !monsters[index].isDying()) {
+						monsters[index].update();
+					} else if (!monsters[index].isAlive()) {
+						monsters[index] = null;
+					}
+				}
+			}
+		}
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -99,36 +147,122 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
-		// tiles
-		tileMgr.draw(g2);
+		//long drawStart = System.currentTimeMillis();
 		
-		// objects
-		for(SuperObject obj : objects) {
-			if (obj != null) {
-				obj.draw(g2, this);
+	    if (gameState == TITLE_STATE) {
+	    	// title screen 
+	    	gameUI.draw(g2);
+	    } else {
+			
+			// tiles
+			tileMgr.draw(g2);
+
+			// entities (players, npcs, objects)
+			entityList.add(player);
+			
+			for (Entity npc : npcs) {
+				if (npc != null) {
+					entityList.add(npc);
+				}
 			}
+			
+			for (Entity object : objects) {
+				if (object != null) {
+					entityList.add(object);
+				}
+			}
+			
+			for (Entity monster : monsters) {
+				if (monster != null) {
+					entityList.add(monster);
+				}
+			}
+			
+			//Sort by WorldY
+			Collections.sort(entityList, new Comparator<Entity>() {
+				@Override
+				public int compare(Entity e0, Entity e1) {
+					
+					int result = Integer.compare(e0.getWorldY(), e1.getWorldY());
+					
+					return result;
+				}
+			});
+
+			//Draw entity list
+			for (Entity entity : entityList) {
+				entity.draw(g2);
+			}
+			
+			//remove all entities
+			entityList.clear();
+			
+			// UI
+			gameUI.draw(g2);
 		}
 		
-		// player
-		player.draw(g2);
+		//long drawEnd = System.currentTimeMillis();
+		//long drawTime = drawEnd - drawStart;
+		
+		//System.out.println("draw time = " + drawTime);
+		// getting 200-300ms initially	
 
 		g2.dispose();
 	}
 	
+	public void playMusic(int index) {
+		music.setFile(index);
+		music.play();
+		music.loop();
+	}
+	
+	public void stopMusic() {
+		music.stop();
+	}
+	
+	public void playSoundEffect(int index) {
+		sound.setFile(index);
+		sound.play();
+	}
+	
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 	
 	public CollisionChecker getCollisionChecker() {
-		return cChecker;
+		return this.cChecker;
 	}
 	
 	public TileManager getTileManager() {
-		return tileMgr;
+		return this.tileMgr;
+	}
+
+	public KeyHandler getKeyHandler() {
+		return this.keyHandler;
 	}
 	
-	public SuperObject[] getObjects() {
+	public Entity[] getObjects() {
 		return this.objects;
+	}
+	
+	public Entity[] getNPCs() {
+		return this.npcs;
+	}
+	
+	public Entity[] getMonsters() {
+		return this.monsters;
+	}
+	
+	public GameUserInterface getGameUI() {
+		return this.gameUI;
+	}
+	
+	public EventHandler getEventHandler() {
+		return this.eventHandler;
+	}
+	
+	public ObjectFactory getObjectFactory() {
+		return this.oFactory;
 	}
 	
 	public int getTileSize() {
@@ -158,4 +292,13 @@ public class GamePanel extends JPanel implements Runnable {
 	public int getMaxWorldRow() {
 		return maxWorldRow;
 	}
+	
+	public int getGameState() {
+		return this.gameState;
+	}
+	
+	public void setGameState(int newState) {
+		this.gameState = newState;
+	}
+		
 }

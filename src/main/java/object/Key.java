@@ -1,16 +1,14 @@
 package object;
 
-import javax.imageio.ImageIO;
+import entity.Entity;
+import game2d.GamePanel;
 
-public class Key extends SuperObject {
+public class Key extends Entity {
 
-	public Key() {
-		name = "Key";
+	public Key(GamePanel gp) {
+		super(gp);
 		
-		try {
-			image = ImageIO.read(getClass().getResourceAsStream("/objects/key.png"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		name = "Key";
+		down1 = setupEntityImage("/objects/key.png", tileSize, tileSize);
 	}
 }

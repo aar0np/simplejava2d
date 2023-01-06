@@ -1,7 +1,6 @@
 package game2d;
 
 import entity.Entity;
-import object.SuperObject;
 
 public class CollisionChecker {
 
@@ -83,7 +82,7 @@ public class CollisionChecker {
 		
 		//for (SuperObject object : gp.getObjects()) {
 		for (int counter = 0; counter < gp.getObjects().length; counter++) {
-			SuperObject object = gp.getObjects()[counter];
+			Entity object = gp.getObjects()[counter];
 		
 			if (object != null) {
 				// get entity's solid area position
@@ -149,5 +148,94 @@ public class CollisionChecker {
 		}
 		
 		return index;
+	}
+	
+	public int checkEntity(Entity entity, Entity[] target) {
+		
+		int index = 999;
+		
+		//for (SuperObject object : gp.getObjects()) {
+		for (int counter = 0; counter < target.length; counter++) {
+		
+			if (target[counter] != null) {
+				// get entity's solid area position
+				entity.getSolidArea().x = entity.getWorldX() + entity.getSolidArea().x;
+				entity.getSolidArea().y = entity.getWorldY() + entity.getSolidArea().y;
+				
+				// get object's solid area position
+				target[counter].getSolidArea().x = target[counter].getWorldX() + target[counter].getSolidArea().x;
+				target[counter].getSolidArea().y = target[counter].getWorldY() + target[counter].getSolidArea().y;
+				
+				switch (entity.getDirection()) {
+					case "up":
+						entity.getSolidArea().y -= entity.getSpeed();
+						break;
+					case "down":
+						entity.getSolidArea().y += entity.getSpeed();
+						break;
+					case "left":
+						entity.getSolidArea().x -= entity.getSpeed();
+						break;
+					case "right":
+						entity.getSolidArea().x += entity.getSpeed();
+						break;
+				}
+
+				if (entity.getSolidArea().intersects(target[counter].getSolidArea())) {
+					if (target[counter] != entity) {
+						entity.setCollisionOn(true);
+						index = counter;
+					}
+				}
+				
+				// reset numbers back to defaults
+				entity.getSolidArea().x = entity.getSolidAreaDefaultX();
+				entity.getSolidArea().y = entity.getSolidAreaDefaultY();
+				target[counter].getSolidArea().x = target[counter].getSolidAreaDefaultX();
+				target[counter].getSolidArea().y = target[counter].getSolidAreaDefaultY();
+			}
+		}
+		
+		return index;
+	}
+	
+	public boolean checkPlayer(Entity entity) {
+		boolean contactPlayer = false;
+		
+		// get entity's solid area position
+		entity.getSolidArea().x = entity.getWorldX() + entity.getSolidArea().x;
+		entity.getSolidArea().y = entity.getWorldY() + entity.getSolidArea().y;
+		
+		// get player's solid area position
+		gp.getPlayer().getSolidArea().x = gp.getPlayer().getWorldX() + gp.getPlayer().getSolidArea().x;
+		gp.getPlayer().getSolidArea().y = gp.getPlayer().getWorldY() + gp.getPlayer().getSolidArea().y;
+		
+		switch (entity.getDirection()) {
+			case "up":
+				entity.getSolidArea().y -= entity.getSpeed();
+				break;
+			case "down":
+				entity.getSolidArea().y += entity.getSpeed();
+				break;
+			case "left":
+				entity.getSolidArea().x -= entity.getSpeed();
+				break;
+			case "right":
+				entity.getSolidArea().x += entity.getSpeed();
+				break;
+		}
+		
+		if (entity.getSolidArea().intersects(gp.getPlayer().getSolidArea())) {
+			entity.setCollisionOn(true);
+			contactPlayer = true;
+		}
+
+		// reset numbers back to defaults
+		entity.getSolidArea().x = entity.getSolidAreaDefaultX();
+		entity.getSolidArea().y = entity.getSolidAreaDefaultY();
+		gp.getPlayer().getSolidArea().x = gp.getPlayer().getSolidAreaDefaultX();
+		gp.getPlayer().getSolidArea().y = gp.getPlayer().getSolidAreaDefaultY();
+		
+		return contactPlayer;
 	}
 }
