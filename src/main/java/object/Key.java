@@ -9,6 +9,7 @@ public class Key extends Entity {
 		super(gp);
 		
 		name = "Key";
+		description = "[" + name + "]\nIt opens a door.";
 		down1 = setupEntityImage("/objects/key.png", tileSize, tileSize);
 	}
 }

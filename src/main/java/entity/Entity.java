@@ -37,8 +37,14 @@ public class Entity {
 	protected int actionLockCounter = 0;
 	protected int invincibleCounter = 0;
 	protected int dyingCounter = 0;
+	
+	protected final int PLAYER = 0;
 	protected final int NPC = 1;
 	protected final int MONSTER = 2;
+	protected final int SWORD = 3;
+	protected final int AXE = 4;
+	protected final int SHIELD = 5;
+	protected final int CONSUMABLE = 6;
 	
 	protected boolean collisionOn = false;
 	protected boolean collision = false;
@@ -74,6 +80,7 @@ public class Entity {
 	// item attributes
 	protected int attackValue;
 	protected int defenseValue;
+	protected String description;
 	
 	public Entity(GamePanel gp) {
 		this.gp = gp;
@@ -118,6 +125,10 @@ public class Entity {
 			direction = "left";
 			break;
 		}		
+	}
+	
+	public void use(Entity entity) {
+		
 	}
 	
 	public void update() {
@@ -489,5 +500,13 @@ public class Entity {
 
 	public Entity getCurrentShield() {
 		return currentShield;
+	}
+	
+	public String getItemDescription() {
+		return this.description;
+	}
+	
+	public Rectangle getAttackArea() {
+		return this.attackArea;
 	}
 }

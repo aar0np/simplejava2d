@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements Runnable {
 	List<Entity> entityList = new ArrayList<>();
 	
 	private int gameState;
-
+	// game state constants
 	public final int TITLE_STATE = 0;
 	public final int PLAY_STATE = 1;
 	public final int PAUSE_STATE = 2;

@@ -4,22 +4,27 @@ package entity;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 import game2d.GamePanel;
 import game2d.KeyHandler;
+import object.Key;
 import object.ShieldWood;
 import object.SwordNormal;
 
 public class Player extends Entity {
 	int tileSize;
-	final int screenX;
-	final int screenY;
-	
-	KeyHandler keyHandler;
+	int maxInventorySize = 20;
+	// int hasKey = 0;
 
 	boolean attackCanceled = false;
-	
-	// int hasKey = 0;
+
+	List<Entity> inventory = new ArrayList<>();
+	KeyHandler keyHandler;
+
+	final int screenX;
+	final int screenY;
 	
 	public Player(GamePanel gp, KeyHandler keyH) {
 		super(gp);
@@ -37,12 +42,9 @@ public class Player extends Entity {
 		
 		solidAreaDefaultX = solidArea.x;
 		solidAreaDefaultY = solidArea.y;
-		
-		// this can be adjusted based on type of weapon
-		attackArea.width = 36;
-		attackArea.height = 36;
-		
+				
 		setDefaultValues();
+		setItems();
 		getPlayerImages();
 		getPlayerAttackImages();
 	}
@@ -69,6 +71,16 @@ public class Player extends Entity {
 		defense = computeDefense();
 	}
 	
+	private void setItems() {
+		// add starting weapon and shield
+		inventory.add(currentWeapon);
+		inventory.add(currentShield);
+		
+		// add two keys
+		inventory.add(new Key(gp));
+		//inventory.add(new Key(gp));
+	}
+	
 	private void getPlayerImages() {
 		
 		up1 = setupEntityImage("/player/boy_up_1.png", tileSize, tileSize);
@@ -83,14 +95,25 @@ public class Player extends Entity {
 	
 	private void getPlayerAttackImages() {
 		
-		upAttack1 = setupEntityImage("/player/boy_attack_up_1.png", tileSize, tileSize * 2);
-		upAttack2 = setupEntityImage("/player/boy_attack_up_2.png", tileSize, tileSize * 2);
-		downAttack1 = setupEntityImage("/player/boy_attack_down_1.png", tileSize, tileSize * 2);
-		downAttack2 = setupEntityImage("/player/boy_attack_down_2.png", tileSize, tileSize * 2);
-		rightAttack1 = setupEntityImage("/player/boy_attack_right_1.png", tileSize * 2, tileSize);
-		rightAttack2 = setupEntityImage("/player/boy_attack_right_2.png", tileSize * 2, tileSize);
-		leftAttack1 = setupEntityImage("/player/boy_attack_left_1.png", tileSize * 2, tileSize);
-		leftAttack2 = setupEntityImage("/player/boy_attack_left_2.png", tileSize * 2, tileSize);
+		if (currentWeapon.type == SWORD) {
+			upAttack1 = setupEntityImage("/player/boy_attack_up_1.png", tileSize, tileSize * 2);
+			upAttack2 = setupEntityImage("/player/boy_attack_up_2.png", tileSize, tileSize * 2);
+			downAttack1 = setupEntityImage("/player/boy_attack_down_1.png", tileSize, tileSize * 2);
+			downAttack2 = setupEntityImage("/player/boy_attack_down_2.png", tileSize, tileSize * 2);
+			rightAttack1 = setupEntityImage("/player/boy_attack_right_1.png", tileSize * 2, tileSize);
+			rightAttack2 = setupEntityImage("/player/boy_attack_right_2.png", tileSize * 2, tileSize);
+			leftAttack1 = setupEntityImage("/player/boy_attack_left_1.png", tileSize * 2, tileSize);
+			leftAttack2 = setupEntityImage("/player/boy_attack_left_2.png", tileSize * 2, tileSize);
+		} else if (currentWeapon.type == AXE) {
+			upAttack1 = setupEntityImage("/player/boy_axe_up_1.png", tileSize, tileSize * 2);
+			upAttack2 = setupEntityImage("/player/boy_axe_up_2.png", tileSize, tileSize * 2);
+			downAttack1 = setupEntityImage("/player/boy_axe_down_1.png", tileSize, tileSize * 2);
+			downAttack2 = setupEntityImage("/player/boy_axe_down_2.png", tileSize, tileSize * 2);
+			rightAttack1 = setupEntityImage("/player/boy_axe_right_1.png", tileSize * 2, tileSize);
+			rightAttack2 = setupEntityImage("/player/boy_axe_right_2.png", tileSize * 2, tileSize);
+			leftAttack1 = setupEntityImage("/player/boy_axe_left_1.png", tileSize * 2, tileSize);
+			leftAttack2 = setupEntityImage("/player/boy_axe_left_2.png", tileSize * 2, tileSize);
+		}
 	}
 	
 	public void update() {
@@ -210,6 +233,16 @@ public class Player extends Entity {
 
 		if (index != 999) {
 			
+			if (inventory.size() < maxInventorySize) {
+				
+				inventory.add(gp.getObjects()[index]);
+				gp.getGameUI().addMessage("Picked up " + gp.getObjects()[index].getName() + "!");
+				gp.playSoundEffect(1);
+				gp.getObjects()[index] = null;
+			} else {
+				// inventory is full!
+				gp.getGameUI().addMessage("Inventory is full!");				
+			}
 		}
 		
 	}
@@ -341,6 +374,11 @@ public class Player extends Entity {
 			spriteCounter = 0;
 			attacking = false;
 		}
+	}
+	
+	protected int computeAttack() {
+		attackArea = currentWeapon.getAttackArea();
+		return strength * currentWeapon.getAttackValue();
 	}
 	
 // Treasure hunt version pickUpObject	
@@ -508,5 +546,30 @@ public class Player extends Entity {
 	
 	public void setAttackCanceled(boolean attackCanceled) {
 		this.attackCanceled = attackCanceled;
-	}	
+	}
+	
+	public List<Entity> getInventory() {
+		return this.inventory;
+	}
+	
+	public void equipItem () {
+		
+		int itemIndex = gp.getGameUI().getItemIndexFromSlot();
+		
+		if (itemIndex < maxInventorySize) {
+			Entity selectedItem = inventory.get(itemIndex);
+			
+			if (selectedItem.type == SWORD || selectedItem.type == AXE) {
+				currentWeapon = selectedItem;
+				attack = computeAttack();
+				getPlayerAttackImages();
+			} else if (selectedItem.type == SHIELD) {
+				currentShield = selectedItem;
+				defense = computeDefense();
+			} else if (selectedItem.type == CONSUMABLE) {
+				selectedItem.use(this);
+				inventory.remove(itemIndex);
+			}
+		}
+	}
  }

@@ -2,11 +2,13 @@ package game2d;
 
 import entity.OldMan;
 import monster.GreenSlime;
-
+import object.Axe;
+import object.BlueShield;
 //import object.Boots;
 //import object.Chest;
 //import object.Door;
-//import object.Key;
+import object.Key;
+import object.RedPotion;
 
 public class ObjectFactory {
 
@@ -21,7 +23,34 @@ public class ObjectFactory {
 	// RPG version generateObjects
 	//
 	public void generateObjects() {
-	
+		// keys
+		gp.getObjects()[0] = new Key(gp);
+		gp.getObjects()[0].setWorldX(23 * tileSize);
+		gp.getObjects()[0].setWorldY(7 * tileSize);
+		
+		gp.getObjects()[1] = new Key(gp);
+		gp.getObjects()[1].setWorldX(23 * tileSize);
+		gp.getObjects()[1].setWorldY(40 * tileSize);
+
+		gp.getObjects()[2] = new Key(gp);
+		gp.getObjects()[2].setWorldX(38 * tileSize);
+		gp.getObjects()[2].setWorldY(8 * tileSize);
+		
+		// Woodcutter's Axe
+		gp.getObjects()[3] = new Axe(gp);
+		gp.getObjects()[3].setWorldX(37 * tileSize);
+		gp.getObjects()[3].setWorldY(21 * tileSize);
+
+		// Blue Shield
+		gp.getObjects()[4] = new BlueShield(gp);
+		gp.getObjects()[4].setWorldX(35 * tileSize);
+		gp.getObjects()[4].setWorldY(23 * tileSize);
+
+		// Red Potion
+		gp.getObjects()[5] = new RedPotion(gp);
+		gp.getObjects()[5].setWorldX(22 * tileSize);
+		gp.getObjects()[5].setWorldY(27 * tileSize);
+
 	}
 	
 	public void generateNPCs() {

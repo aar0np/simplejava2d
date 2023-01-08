@@ -81,10 +81,34 @@ public class KeyHandler implements KeyListener {
 	}
 	
 	private void characterSheetState(int code) {
+		// need to pre-increment our variables with the setters.
+		// ex: ++row instead of row++
+		int row = gp.getGameUI().getSlotRow();
+		int col = gp.getGameUI().getSlotCol();
 		
 		if (code == KeyEvent.VK_C) {
 			gp.setGameState(gp.PLAY_STATE);
-		}		
+		}
+		if (code == KeyEvent.VK_W) {
+			gp.getGameUI().setSlotRow(--row);
+			gp.playSoundEffect(15);
+		}
+		if (code == KeyEvent.VK_A) {
+			gp.getGameUI().setSlotCol(--col);
+			gp.playSoundEffect(15);
+		}
+		if (code == KeyEvent.VK_S) {
+			gp.getGameUI().setSlotRow(++row);
+			gp.playSoundEffect(15);
+		}
+		if (code == KeyEvent.VK_D) {
+			gp.getGameUI().setSlotCol(++col);
+			gp.playSoundEffect(15);
+		}
+		if (code == KeyEvent.VK_ENTER) {
+			gp.getPlayer().equipItem();
+		}
+		
 	}
 	
 	private void titleState(int code) {

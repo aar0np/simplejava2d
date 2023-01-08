@@ -9,7 +9,11 @@ public class SwordNormal extends Entity {
 		super(gp);
 
 		name = "Sword";
+		type = SWORD;
+		description = "[" + name + "]\nAn old sword.";
 		down1 = setupEntityImage("/objects/sword_normal.png", tileSize, tileSize);
+		attackArea.width = 36;
+		attackArea.height = 36;
 		attackValue = 1;
 	}
 
