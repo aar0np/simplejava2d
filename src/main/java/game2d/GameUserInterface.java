@@ -11,6 +11,7 @@ import java.util.List;
 
 import entity.Entity;
 import object.Heart;
+import object.ManaCrystal;
 
 //import object.Key;
 
@@ -28,6 +29,8 @@ public class GameUserInterface {
 	BufferedImage heartFull;
 	BufferedImage heartHalf;
 	BufferedImage heartBlank;
+	BufferedImage manaCrystalFull;
+	BufferedImage manaCrystalBlank;
 	int tileSize;
 	int commandNum = 0;
 	String currentDialog = "";
@@ -55,6 +58,10 @@ public class GameUserInterface {
 		heartFull = heart.getImage();
 		heartHalf = heart.getImage2();
 		heartBlank = heart.getImage3();
+		
+		Entity manaCrystal = new ManaCrystal(gp);
+		manaCrystalFull = manaCrystal.getImage();
+		manaCrystalBlank = manaCrystal.getImage2();
 	}
 	
 	public void addMessage(String message) {
@@ -119,6 +126,27 @@ public class GameUserInterface {
 			
 			heartX += tileSize;
 		}
+		
+		// draw max mana
+		int manaX = (tileSize / 2) - 5;
+		int manaY = (int)(tileSize * 1.5);
+		
+		for (int counter = 0; counter < gp.getPlayer().getMaxMana(); counter++) {
+			g2.drawImage(manaCrystalBlank, manaX, manaY, null);
+			manaX += 35;
+		}
+		
+		// draw current mana
+		manaX = (tileSize / 2) - 5;
+		manaY = (int)(tileSize * 1.5);
+		int manaCounter = 0;
+		
+		while (manaCounter < gp.getPlayer().getCurrentMana()) {
+			g2.drawImage(manaCrystalFull, manaX, manaY, null);
+			manaX += 35;
+			manaCounter++;
+		}
+
 	}
 	
 	private void drawMessages() {
@@ -256,7 +284,10 @@ public class GameUserInterface {
 		
 		g2.drawString("Health", textX, textY);
 		textY += lineHeight;
-		
+
+		g2.drawString("Mana", textX, textY);
+		textY += lineHeight;
+
 		g2.drawString("Strength", textX, textY);
 		textY += lineHeight;
 
@@ -276,10 +307,10 @@ public class GameUserInterface {
 		textY += lineHeight;
 
 		g2.drawString("Coin", textX, textY);
-		textY += lineHeight + 20;
+		textY += lineHeight + 10;
 
 		g2.drawString("Weapon", textX, textY);
-		textY += lineHeight + 15;
+		textY += lineHeight + 10;
 
 		g2.drawString("Shield", textX, textY);
 
@@ -293,7 +324,13 @@ public class GameUserInterface {
 				+ "/" + String.valueOf(gp.getPlayer().getMaxHealth());
 		valueX = getXForAlignToRightText(value, tailX);
 		g2.drawString(value, valueX, valueY);
-		
+
+		valueY += lineHeight;
+		value = String.valueOf(gp.getPlayer().getCurrentMana())
+				+ "/" + String.valueOf(gp.getPlayer().getMaxMana());
+		valueX = getXForAlignToRightText(value, tailX);
+		g2.drawString(value, valueX, valueY);
+
 		valueY += lineHeight;
 		value = String.valueOf(gp.getPlayer().getStrength());
 		valueX = getXForAlignToRightText(value, tailX);
@@ -331,10 +368,10 @@ public class GameUserInterface {
 
 		// draw images for current sword and shield
 		valueY += lineHeight;
-		g2.drawImage(gp.getPlayer().getCurrentWeapon().getDn1(), tailX - tileSize, valueY - 14, null);
+		g2.drawImage(gp.getPlayer().getCurrentWeapon().getDn1(), tailX - tileSize, valueY - 24, null);
 		
 		valueY += lineHeight;
-		g2.drawImage(gp.getPlayer().getCurrentShield().getDn1(), tailX - tileSize, valueY, null);
+		g2.drawImage(gp.getPlayer().getCurrentShield().getDn1(), tailX - tileSize, valueY - 14, null);
 
 	}
 	

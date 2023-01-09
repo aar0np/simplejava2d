@@ -9,7 +9,9 @@ import java.util.List;
 
 import game2d.GamePanel;
 import game2d.KeyHandler;
+import object.Fireball;
 import object.Key;
+//import object.Rock;
 import object.ShieldWood;
 import object.SwordNormal;
 
@@ -59,6 +61,9 @@ public class Player extends Entity {
 		speed = 4;
 		maxHealth = 6;
 		currentHealth = maxHealth;
+		maxMana = 4;
+		currentMana = maxMana;
+		ammunition = 10;
 		level = 1;
 		strength = 1;
 		dexterity = 1;
@@ -67,6 +72,8 @@ public class Player extends Entity {
 		coin = 0;
 		currentWeapon = new SwordNormal(gp);
 		currentShield = new ShieldWood(gp);
+		projectile = new Fireball(gp);
+		//projectile = new Rock(gp);
 		attack = computeAttack();
 		defense = computeDefense();
 	}
@@ -218,12 +225,27 @@ public class Player extends Entity {
 			}
 		}
 		
+		if (gp.getKeyHandler().isShotKeyPressed() && !projectile.isAlive()
+				&& shotAvailableCounter >= 30 && projectile.hasResource(this)) {
+			// did the player press the "shot" key, and is another projectile already on the screen
+			projectile.set(worldX, worldY, direction, true, this);
+			projectile.decreaseResource(this);
+			gp.getProjectiles().add(projectile);
+			gp.playSoundEffect(16);
+			shotAvailableCounter = 0;
+		}
+		
 		if (invincible) {
 			invincibleCounter++;
 			if (invincibleCounter >= 60) {
 				invincible = false;
 				invincibleCounter = 0;
 			}
+		}
+		
+		// controlling "autofire bug" for projectiles
+		if (shotAvailableCounter < 30) {
+			shotAvailableCounter++;
 		}
 	}
 	
@@ -233,16 +255,24 @@ public class Player extends Entity {
 
 		if (index != 999) {
 			
-			if (inventory.size() < maxInventorySize) {
-				
-				inventory.add(gp.getObjects()[index]);
-				gp.getGameUI().addMessage("Picked up " + gp.getObjects()[index].getName() + "!");
-				gp.playSoundEffect(1);
+			if (gp.getObjects()[index].getType() == REGULAR_ITEM) {
+				// regular items
+				gp.getObjects()[index].use(this);
 				gp.getObjects()[index] = null;
 			} else {
-				// inventory is full!
-				gp.getGameUI().addMessage("Inventory is full!");				
+				//inventoried items				
+				if (inventory.size() < maxInventorySize) {
+					
+					inventory.add(gp.getObjects()[index]);
+					gp.getGameUI().addMessage("Picked up " + gp.getObjects()[index].getName() + "!");
+					gp.playSoundEffect(1);
+					gp.getObjects()[index] = null;
+				} else {
+					// inventory is full!
+					gp.getGameUI().addMessage("Inventory is full!");				
+				}
 			}
+
 		}
 		
 	}
@@ -275,7 +305,7 @@ public class Player extends Entity {
 		}
 	}
 
-	private void damageMonster(int index) {
+	public void damageMonster(int index, int attack) {
 		if (index != 999) {
 
 			if (!gp.getMonsters()[index].isInvincible()) {
@@ -307,7 +337,7 @@ public class Player extends Entity {
 		if (experiencePoints >= nextLevelExp) {
 			// level up!
 			level++;
-			nextLevelExp = nextLevelExp *2;
+			nextLevelExp = nextLevelExp * 4;
 			maxHealth += 2;
 			strength++;
 			dexterity++;
@@ -360,7 +390,7 @@ public class Player extends Entity {
 			
 			// check if our attack has struck any of the monsters
 			int monsterIndex = gp.getCollisionChecker().checkEntity(this, gp.getMonsters());
-			damageMonster(monsterIndex);
+			damageMonster(monsterIndex, this.attack);
 			
 			// restore original values
 			worldX = currentWorldX;
@@ -530,6 +560,14 @@ public class Player extends Entity {
 	
 	public int getCurrentHealth() {
 		return this.currentHealth;
+	}
+	
+	public int getMaxMana() {
+		return this.maxMana;
+	}
+	
+	public int getCurrentMana() {
+		return this.currentMana;
 	}
 	
 	public boolean isInvincible() {

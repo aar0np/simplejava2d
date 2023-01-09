@@ -37,6 +37,7 @@ public class Entity {
 	protected int actionLockCounter = 0;
 	protected int invincibleCounter = 0;
 	protected int dyingCounter = 0;
+	protected int shotAvailableCounter = 0;
 	
 	protected final int PLAYER = 0;
 	protected final int NPC = 1;
@@ -45,6 +46,7 @@ public class Entity {
 	protected final int AXE = 4;
 	protected final int SHIELD = 5;
 	protected final int CONSUMABLE = 6;
+	protected final int REGULAR_ITEM = 7;
 	
 	protected boolean collisionOn = false;
 	protected boolean collision = false;
@@ -66,6 +68,9 @@ public class Entity {
 	protected int type;
 	protected int maxHealth;
 	protected int currentHealth;
+	protected int maxMana;
+	protected int currentMana;
+	protected int ammunition;
 	protected int level;
 	protected int strength; 
 	protected int dexterity;
@@ -76,11 +81,13 @@ public class Entity {
 	protected int coin;
 	protected Entity currentWeapon;
 	protected Entity currentShield;
+	protected Projectile projectile;
 	
 	// item attributes
 	protected int attackValue;
 	protected int defenseValue;
 	protected String description;
+	protected int useCost;
 	
 	public Entity(GamePanel gp) {
 		this.gp = gp;
@@ -93,6 +100,26 @@ public class Entity {
 	
 	public void damageReaction() {
 		
+	}
+	
+	public void checkDrop() {
+		
+	}
+	
+	public void dropItem(Entity droppedItem) {
+		
+		for (int objectIndex = 0; objectIndex < gp.getObjects().length; objectIndex++) {
+			if (gp.getObjects()[objectIndex] == null) {
+				// look for null entry in array, and set
+				gp.getObjects()[objectIndex] = droppedItem;
+				gp.getObjects()[objectIndex].setWorldX(worldX);
+				gp.getObjects()[objectIndex].setWorldY(worldY);
+				
+				// once we've found one, and dropped our item,
+				// there's no reason to look at the rest of the array
+				break;
+			}
+		}
 	}
 	
 	protected int computeAttack() {
@@ -142,17 +169,7 @@ public class Entity {
 		boolean contactPlayer = gp.getCollisionChecker().checkPlayer(this);
 		
 		if (this.type == MONSTER && contactPlayer) {
-			if (!gp.getPlayer().isInvincible()) {
-				gp.playSoundEffect(10);
-				
-				int damage = attack - gp.getPlayer().getDefense();
-				if (damage < 0) {
-					damage = 0;
-				}
-
-				gp.getPlayer().decreaseHealth(damage);
-				gp.getPlayer().setInvincible(true);
-			}
+			damagePlayer(this.attack);
 		}
 		
 		if (!collisionOn) {
@@ -191,6 +208,10 @@ public class Entity {
 				invincibleCounter = 0;
 			}
 		}
+		
+		if (shotAvailableCounter < 30) {
+			shotAvailableCounter++;
+		}
 	}
 	
 	protected BufferedImage setupEntityImage(String imagePath, int width, int height) {
@@ -205,6 +226,21 @@ public class Entity {
 		}
 		
 		return image;
+	}
+	
+	public void damagePlayer(int attack) {
+
+		if (!gp.getPlayer().isInvincible()) {
+			gp.playSoundEffect(10);
+			
+			int damage = attack - gp.getPlayer().getDefense();
+			if (damage < 0) {
+				damage = 0;
+			}
+
+			gp.getPlayer().decreaseHealth(damage);
+			gp.getPlayer().setInvincible(true);
+		}
 	}
 	
 	public void draw(Graphics2D g2) {
@@ -284,7 +320,7 @@ public class Entity {
 				dyingAnimation(g2);
 			}
 			
-			g2.drawImage(image, screenX, screenY, tileSize, tileSize, null);
+			g2.drawImage(image, screenX, screenY, null);
 			
 			//g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 			changeAlpha(g2, 1f);
@@ -355,7 +391,7 @@ public class Entity {
 	public BufferedImage getEntityImage() {
 		return down1;
 	}
-	
+
 	public int getCurrentHealth() {
 		return this.currentHealth;
 	}
@@ -384,6 +420,36 @@ public class Entity {
 	
 	public void replenishHealth() {
 		this.currentHealth = this.maxHealth;
+	}
+
+	public int getCurrentMana() {
+		return this.currentMana;
+	}
+	
+	public void increaseMana(int manaPoints) {
+		if (currentMana < maxMana) {
+			this.currentMana += manaPoints;
+			
+			if (currentMana > maxMana) {
+				// currentMana cannot exceed the maximum
+				currentMana = maxMana;
+			}
+		}
+	}
+	
+	public void decreaseMana(int manaPoints) {
+		if (currentMana > 0) {
+			currentMana -= manaPoints;
+			
+			if (currentMana < 0) {
+				// currentMana cannot go below zero
+				currentMana = 0;
+			}
+		}
+	}
+	
+	public void replenishMana() {
+		this.currentMana = this.maxMana;
 	}
 	
 	public BufferedImage getDn1() {
@@ -493,6 +559,10 @@ public class Entity {
 	public int getCoin() {
 		return coin;
 	}
+	
+	public void incrementCoin(int value) {
+		this.coin += value;
+	}
 
 	public Entity getCurrentWeapon() {
 		return currentWeapon;
@@ -506,7 +576,19 @@ public class Entity {
 		return this.description;
 	}
 	
+	public int getUseCost() {
+		return this.useCost;
+	}
+	
 	public Rectangle getAttackArea() {
 		return this.attackArea;
+	}
+	
+	public int getAmmunition() {
+		return this.ammunition;
+	}
+	
+	public void decreaseAmmunition(int amount) {
+		this.ammunition -= amount;
 	}
 }

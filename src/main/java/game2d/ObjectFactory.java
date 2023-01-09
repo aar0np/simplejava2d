@@ -4,10 +4,13 @@ import entity.OldMan;
 import monster.GreenSlime;
 import object.Axe;
 import object.BlueShield;
+import object.BronzeCoin;
+import object.Heart;
 //import object.Boots;
 //import object.Chest;
 //import object.Door;
 import object.Key;
+import object.ManaCrystal;
 import object.RedPotion;
 
 public class ObjectFactory {
@@ -50,6 +53,29 @@ public class ObjectFactory {
 		gp.getObjects()[5] = new RedPotion(gp);
 		gp.getObjects()[5].setWorldX(22 * tileSize);
 		gp.getObjects()[5].setWorldY(27 * tileSize);
+
+		// coins
+		gp.getObjects()[6] = new BronzeCoin(gp);
+		gp.getObjects()[6].setWorldX(26 * tileSize);
+		gp.getObjects()[6].setWorldY(21 * tileSize);
+
+		gp.getObjects()[7] = new BronzeCoin(gp);
+		gp.getObjects()[7].setWorldX(21 * tileSize);
+		gp.getObjects()[7].setWorldY(19 * tileSize);
+
+		gp.getObjects()[8] = new BronzeCoin(gp);
+		gp.getObjects()[8].setWorldX(23 * tileSize);
+		gp.getObjects()[8].setWorldY(27 * tileSize);
+
+		// Mana Crystals
+		gp.getObjects()[9] = new ManaCrystal(gp);
+		gp.getObjects()[9].setWorldX(22 * tileSize);
+		gp.getObjects()[9].setWorldY(31 * tileSize);
+
+		// Hearts
+		gp.getObjects()[10] = new Heart(gp);
+		gp.getObjects()[10].setWorldX(22 * tileSize);
+		gp.getObjects()[10].setWorldY(29 * tileSize);
 
 	}
 	

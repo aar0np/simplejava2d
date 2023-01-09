@@ -10,6 +10,7 @@ public class KeyHandler implements KeyListener {
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
 	private boolean enterPressed = false;
+	private boolean shotKeyPressed = false;
 	private GamePanel gp;
 	
 	public KeyHandler(GamePanel gp) {
@@ -58,6 +59,9 @@ public class KeyHandler implements KeyListener {
 		}
 		if (code == KeyEvent.VK_ENTER) {
 			enterPressed = true;
+		}
+		if (code == KeyEvent.VK_F) {
+			shotKeyPressed = true;
 		}
 		if (code == KeyEvent.VK_ESCAPE) {
 			gp.setGameState(gp.PAUSE_STATE);
@@ -153,6 +157,9 @@ public class KeyHandler implements KeyListener {
 		if (code == KeyEvent.VK_ENTER) {
 			enterPressed = false;
 		}
+		if (code == KeyEvent.VK_F) {
+			shotKeyPressed = false;
+		}
 	}
 
 	public boolean isUpPressed() {
@@ -194,5 +201,12 @@ public class KeyHandler implements KeyListener {
 	public void setEnterPressed(boolean enterPressed) {
 		this.enterPressed = enterPressed;
 	}
+
+	public boolean isShotKeyPressed() {
+		return this.shotKeyPressed;
+	}
 	
+	public void setShotKeyPressed(boolean shotKeyPressed) {
+		this.shotKeyPressed = shotKeyPressed;
+	}
 }

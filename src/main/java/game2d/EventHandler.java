@@ -111,6 +111,7 @@ public class EventHandler {
 			gp.getPlayer().setAttackCanceled(true);
 			gp.getGameUI().setCurrentDialog("You enjoy some healing water.");
 			gp.getPlayer().replenishHealth();
+			gp.getPlayer().replenishMana();
 			
 			// new twist - if you use healing water, monsters respawn!
 			gp.getObjectFactory().generateMonsters();
