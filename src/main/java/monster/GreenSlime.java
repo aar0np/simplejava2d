@@ -4,6 +4,11 @@ import java.util.Random;
 
 import entity.Entity;
 import game2d.GamePanel;
+import object.BronzeCoin;
+import object.Heart;
+import object.ManaCrystal;
+import object.RedPotion;
+import object.Rock;
 
 public class GreenSlime extends Entity {
 
@@ -17,6 +22,7 @@ public class GreenSlime extends Entity {
 		currentHealth = maxHealth;
 		attack = 5;
 		defense = 0;
+		projectile = new Rock(gp);
 		experiencePoints = 2;
 		
 		solidArea.x = 3;
@@ -43,10 +49,10 @@ public class GreenSlime extends Entity {
 	public void setAction() {
 		//Green Slime AI
 		actionLockCounter++;
+		Random random = new Random();
 		
 		// only let the green slime move every 120 frames (2 seconds)
 		if (actionLockCounter >= 120) {
-			Random random = new Random();
 			int rndNum = random.nextInt(100) + 1;
 			
 			if (rndNum <= 25) {
@@ -59,13 +65,37 @@ public class GreenSlime extends Entity {
 				direction = "right";
 			}
 			
-			actionLockCounter = 0;
+			actionLockCounter = 0;					
 		}
+		
+		// throw/shoot rock
+		int rndShotNum = random.nextInt(100) + 1;
+
+		if (rndShotNum > 99 && !projectile.isAlive() && shotAvailableCounter >= 30) {
+			projectile.set(worldX, worldY, direction, true, this);
+			gp.getProjectiles().add(projectile);
+			shotAvailableCounter = 0;
+		}		
 	}
 	
 	public void damageReaction() {
 
 		actionLockCounter = 0;
 		direction = gp.getPlayer().getDirection();
+	}
+	
+	public void checkDrop() {
+		int randomNum = new Random().nextInt(100) + 1;
+		
+		// 30-49 == nothing
+		if (randomNum < 5) {
+			dropItem(new RedPotion(gp));
+		} else if (randomNum >= 5 && randomNum < 30) {
+			dropItem(new BronzeCoin(gp));
+		} else if (randomNum >= 50 && randomNum < 75) {
+			dropItem(new Heart(gp));
+		} else if (randomNum >= 75) {
+			dropItem(new ManaCrystal(gp));
+		}
 	}
 }

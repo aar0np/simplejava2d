@@ -9,6 +9,8 @@ public class ShieldWood extends Entity {
 		super(gp);
 
 		name = "Wooden Shield";
+		type = SHIELD;
+		description = "[" + name + "]\nA wooden shield.";
 		down1 = setupEntityImage("/objects/shield_wood.png", tileSize, tileSize);
 		defenseValue = 1;
 	}

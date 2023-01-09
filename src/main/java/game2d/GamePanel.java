@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import entity.Entity;
 import entity.Player;
+import entity.Projectile;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -49,13 +50,14 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	// Entities and objects
 	Player player = new Player(this,keyHandler);
-	Entity objects[] = new Entity[10];
+	Entity objects[] = new Entity[40];
 	Entity npcs[] = new Entity[10];
 	Entity monsters[] = new Entity[20];
+	List<Projectile> projectileList = new ArrayList<>();
 	List<Entity> entityList = new ArrayList<>();
 	
 	private int gameState;
-
+	// game state constants
 	public final int TITLE_STATE = 0;
 	public final int PLAY_STATE = 1;
 	public final int PAUSE_STATE = 2;
@@ -135,7 +137,18 @@ public class GamePanel extends JPanel implements Runnable {
 					if (monsters[index].isAlive() && !monsters[index].isDying()) {
 						monsters[index].update();
 					} else if (!monsters[index].isAlive()) {
+						monsters[index].checkDrop();
 						monsters[index] = null;
+					}
+				}
+			}
+			
+			for (int index = 0; index < projectileList.size(); index++) {
+				if (projectileList.get(index) != null) {
+					if (projectileList.get(index).isAlive()) {
+						projectileList.get(index).update();
+					} else if (!projectileList.get(index).isAlive()) {
+						projectileList.remove(index);
 					}
 				}
 			}
@@ -175,6 +188,12 @@ public class GamePanel extends JPanel implements Runnable {
 			for (Entity monster : monsters) {
 				if (monster != null) {
 					entityList.add(monster);
+				}
+			}
+			
+			for (Projectile projectile : projectileList) {
+				if (projectile != null) {
+					entityList.add(projectile);
 				}
 			}
 			
@@ -251,6 +270,10 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public Entity[] getMonsters() {
 		return this.monsters;
+	}
+	
+	public List<Projectile> getProjectiles() {
+		return this.projectileList;
 	}
 	
 	public GameUserInterface getGameUI() {

@@ -11,11 +11,15 @@ import java.util.List;
 
 import entity.Entity;
 import object.Heart;
+import object.ManaCrystal;
 
 //import object.Key;
 
 public class GameUserInterface {
 	private boolean gameFinished = false;
+	
+	public int slotCol = 0;
+	public int slotRow = 0;
 	
 	GamePanel gp;
 	Graphics2D g2;
@@ -25,6 +29,8 @@ public class GameUserInterface {
 	BufferedImage heartFull;
 	BufferedImage heartHalf;
 	BufferedImage heartBlank;
+	BufferedImage manaCrystalFull;
+	BufferedImage manaCrystalBlank;
 	int tileSize;
 	int commandNum = 0;
 	String currentDialog = "";
@@ -52,6 +58,10 @@ public class GameUserInterface {
 		heartFull = heart.getImage();
 		heartHalf = heart.getImage2();
 		heartBlank = heart.getImage3();
+		
+		Entity manaCrystal = new ManaCrystal(gp);
+		manaCrystalFull = manaCrystal.getImage();
+		manaCrystalBlank = manaCrystal.getImage2();
 	}
 	
 	public void addMessage(String message) {
@@ -84,6 +94,7 @@ public class GameUserInterface {
 			drawDialogScreen();
 		} else if (gp.getGameState() == gp.CHARACTER_SHEET_STATE) {
 			drawCharacterScreen();
+			drawInventoryScreen();
 		}
 	}
 	
@@ -115,6 +126,27 @@ public class GameUserInterface {
 			
 			heartX += tileSize;
 		}
+		
+		// draw max mana
+		int manaX = (tileSize / 2) - 5;
+		int manaY = (int)(tileSize * 1.5);
+		
+		for (int counter = 0; counter < gp.getPlayer().getMaxMana(); counter++) {
+			g2.drawImage(manaCrystalBlank, manaX, manaY, null);
+			manaX += 35;
+		}
+		
+		// draw current mana
+		manaX = (tileSize / 2) - 5;
+		manaY = (int)(tileSize * 1.5);
+		int manaCounter = 0;
+		
+		while (manaCounter < gp.getPlayer().getCurrentMana()) {
+			g2.drawImage(manaCrystalFull, manaX, manaY, null);
+			manaX += 35;
+			manaCounter++;
+		}
+
 	}
 	
 	private void drawMessages() {
@@ -230,7 +262,7 @@ public class GameUserInterface {
 	}
 	
 	private void drawCharacterScreen() {
-		final int frameX = tileSize;
+		final int frameX = tileSize / 2;
 		final int frameY = tileSize;
 		final int frameWidth = tileSize * 7;
 		final int frameHeight = tileSize * 10;
@@ -252,7 +284,10 @@ public class GameUserInterface {
 		
 		g2.drawString("Health", textX, textY);
 		textY += lineHeight;
-		
+
+		g2.drawString("Mana", textX, textY);
+		textY += lineHeight;
+
 		g2.drawString("Strength", textX, textY);
 		textY += lineHeight;
 
@@ -272,10 +307,10 @@ public class GameUserInterface {
 		textY += lineHeight;
 
 		g2.drawString("Coin", textX, textY);
-		textY += lineHeight + 20;
+		textY += lineHeight + 10;
 
 		g2.drawString("Weapon", textX, textY);
-		textY += lineHeight + 15;
+		textY += lineHeight + 10;
 
 		g2.drawString("Shield", textX, textY);
 
@@ -289,7 +324,13 @@ public class GameUserInterface {
 				+ "/" + String.valueOf(gp.getPlayer().getMaxHealth());
 		valueX = getXForAlignToRightText(value, tailX);
 		g2.drawString(value, valueX, valueY);
-		
+
+		valueY += lineHeight;
+		value = String.valueOf(gp.getPlayer().getCurrentMana())
+				+ "/" + String.valueOf(gp.getPlayer().getMaxMana());
+		valueX = getXForAlignToRightText(value, tailX);
+		g2.drawString(value, valueX, valueY);
+
 		valueY += lineHeight;
 		value = String.valueOf(gp.getPlayer().getStrength());
 		valueX = getXForAlignToRightText(value, tailX);
@@ -327,11 +368,91 @@ public class GameUserInterface {
 
 		// draw images for current sword and shield
 		valueY += lineHeight;
-		g2.drawImage(gp.getPlayer().getCurrentWeapon().getDn1(), tailX - tileSize, valueY - 14, null);
+		g2.drawImage(gp.getPlayer().getCurrentWeapon().getDn1(), tailX - tileSize, valueY - 24, null);
 		
 		valueY += lineHeight;
-		g2.drawImage(gp.getPlayer().getCurrentShield().getDn1(), tailX - tileSize, valueY, null);
+		g2.drawImage(gp.getPlayer().getCurrentShield().getDn1(), tailX - tileSize, valueY - 14, null);
 
+	}
+	
+	private void drawInventoryScreen() {
+		
+		final int frameX = tileSize * 9;
+		final int frameY = tileSize;
+		final int frameWidth = tileSize * 6;
+		final int frameHeight = tileSize * 5;
+		
+		drawSubWindow(frameX, frameY, frameWidth, frameHeight);
+		
+		// inventory slots
+		final int slotXStart = frameX + (tileSize / 2);
+		final int slotYStart = frameY + (tileSize / 2);
+		int slotX = slotXStart;
+		int slotY = slotYStart;
+		int slotSize = tileSize + 3;
+		
+		// draw player's current items
+		for (Entity item : gp.getPlayer().getInventory()) {
+			
+			// "equip" cursor
+			if (item == gp.getPlayer().getCurrentWeapon() ||
+					item == gp.getPlayer().getCurrentShield()) {
+				g2.setColor(new Color(240,190,90));
+				g2.fillRoundRect(slotX, slotY, tileSize, tileSize, 10, 10);
+			}
+			
+			
+			if (item != null) {
+				// make sure item is not null
+				g2.drawImage(item.getDn1(), slotX, slotY, null);
+				slotX += slotSize;
+				
+				if (slotX > (slotXStart + (4 * slotSize))) {
+					// if we've already drawn slot col #4,
+					// then reset slotX and increment slotY.
+					slotX = slotXStart;
+					slotY += slotSize;
+				}
+			}
+		}
+		
+		// cursor
+		int cursorX = slotXStart + (slotSize * slotCol);
+		int cursorY = slotYStart + (slotSize * slotRow);
+		int cursorWidth = slotSize;
+		int cursorHeight = slotSize;
+		
+		g2.setColor(Color.white);
+		g2.setStroke(new BasicStroke(3));
+		g2.drawRoundRect(cursorX, cursorY, cursorWidth, cursorHeight, 10, 10); // "roundness" setting is 10, 10
+		
+		// item description frame
+		int dFrameX = frameX;
+		int dFrameY = frameY + frameHeight;
+		int dFrameWidth = frameWidth;
+		int dFrameHeight = tileSize * 3;
+		
+		// draw description text
+		int textX = dFrameX + 20;
+		int textY = dFrameY + tileSize;
+		g2.setColor(Color.white);
+		g2.setFont(g2.getFont().deriveFont(28F));
+		final int lineHeight = 32;
+		int itemIndex = getItemIndexFromSlot();
+		
+		if (itemIndex < gp.getPlayer().getInventory().size()) {
+
+			drawSubWindow(dFrameX, dFrameY, dFrameWidth, dFrameHeight);
+
+			for (String line : gp.getPlayer().getInventory().get(itemIndex).getItemDescription().split("\n")) {
+				g2.drawString(line, textX, textY);
+				textY += lineHeight;
+			}
+		}
+	}
+	
+	public int getItemIndexFromSlot() {
+		return (slotRow * 5) + slotCol;
 	}
 	
 	private void drawSubWindow(int swX, int swY, int swWidth, int swHeight) {
@@ -448,4 +569,25 @@ public class GameUserInterface {
 			commandNum++;
 		}
 	}
+	
+	public int getSlotCol () {
+		return this.slotCol;
+	}
+	
+	public void setSlotCol (int slotColumn) {
+		if (slotColumn >= 0 && slotColumn <= 4) {
+			this.slotCol = slotColumn;
+		}
+	}
+
+	public int getSlotRow () {
+		return this.slotRow;
+	}
+	
+	public void setSlotRow (int slotRow) {
+		if (slotRow >= 0 && slotRow <= 3) {
+			this.slotRow = slotRow;
+		}
+	}
+
 }
